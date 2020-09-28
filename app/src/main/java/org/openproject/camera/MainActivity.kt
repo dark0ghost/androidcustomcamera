@@ -9,6 +9,7 @@ import android.hardware.Camera
 import android.hardware.Camera.Size
 import android.os.AsyncTask
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.view.ViewGroup.LayoutParams
 import android.widget.Button
@@ -48,8 +49,14 @@ class MainActivity : AppCompatActivity(),SurfaceHolder.Callback, View.OnClickLis
 
     override fun onResume(): Unit {
         super.onResume()
+        if (this.isAcceptCamera())   ActivityCompat.requestPermissions(this, arrayOf<String>(Manifest.permission.CAMERA),1)
+        try {
+
 
         camera = Camera.open()
+    }catch (e: java.lang.Exception){
+            Log.w("camera","not connect")
+        }
     }
 
     override fun onPause(): Unit {
@@ -75,7 +82,7 @@ class MainActivity : AppCompatActivity(),SurfaceHolder.Callback, View.OnClickLis
             e.printStackTrace()
         }
         val previewSize: Size? = camera!!.getParameters().getPreviewSize()
-        val aspect: Float = (previewSize?.width as Float) / previewSize.height
+        val aspect: Float = ((previewSize?.width?.toFloat())?.div(previewSize.height) ?: 1.0) as Float
         val previewSurfaceWidth = preview.width
         val previewSurfaceHeight = preview.height
         val lp: LayoutParams = preview.layoutParams
