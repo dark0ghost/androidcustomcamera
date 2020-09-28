@@ -1,16 +1,20 @@
 package org.openproject.camera
 
 
+import android.Manifest
 import android.content.pm.ActivityInfo
+import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.hardware.Camera
 import android.hardware.Camera.Size
 import android.os.AsyncTask
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.view.ViewGroup.LayoutParams
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -23,6 +27,7 @@ class MainActivity : AppCompatActivity(),SurfaceHolder.Callback, View.OnClickLis
     private lateinit var shotBtn: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        if (this.isAcceptCamera())   ActivityCompat.requestPermissions(this, arrayOf<String>(Manifest.permission.CAMERA),1)
         super.onCreate(savedInstanceState)
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_BEHIND
 
@@ -44,7 +49,14 @@ class MainActivity : AppCompatActivity(),SurfaceHolder.Callback, View.OnClickLis
 
     override fun onResume(): Unit {
         super.onResume()
+        if (this.isAcceptCamera())   ActivityCompat.requestPermissions(this, arrayOf<String>(Manifest.permission.CAMERA),1)
+        try {
+
+
         camera = Camera.open()
+    }catch (e: java.lang.Exception){
+            Log.w("camera","not connect")
+        }
     }
 
     override fun onPause(): Unit {
@@ -70,7 +82,7 @@ class MainActivity : AppCompatActivity(),SurfaceHolder.Callback, View.OnClickLis
             e.printStackTrace()
         }
         val previewSize: Size? = camera!!.getParameters().getPreviewSize()
-        val aspect: Float = (previewSize?.width as Float) / previewSize.height
+        val aspect: Float = ((previewSize?.width?.toFloat())?.div(previewSize.height) ?: 1.0) as Float
         val previewSurfaceWidth = preview.width
         val previewSurfaceHeight = preview.height
         val lp: LayoutParams = preview.layoutParams
@@ -169,4 +181,6 @@ class MainActivity : AppCompatActivity(),SurfaceHolder.Callback, View.OnClickLis
             return null
         }
     }
+
+    private fun isAcceptCamera(): Boolean = checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED
 }
