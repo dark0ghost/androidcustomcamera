@@ -1,7 +1,9 @@
 package org.openproject.camera
 
 
+import android.Manifest
 import android.content.pm.ActivityInfo
+import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.hardware.Camera
 import android.hardware.Camera.Size
@@ -11,6 +13,7 @@ import android.view.*
 import android.view.ViewGroup.LayoutParams
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -23,6 +26,7 @@ class MainActivity : AppCompatActivity(),SurfaceHolder.Callback, View.OnClickLis
     private lateinit var shotBtn: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        if (this.isAcceptCamera())   ActivityCompat.requestPermissions(this, arrayOf<String>(Manifest.permission.CAMERA),1)
         super.onCreate(savedInstanceState)
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_BEHIND
 
@@ -44,6 +48,7 @@ class MainActivity : AppCompatActivity(),SurfaceHolder.Callback, View.OnClickLis
 
     override fun onResume(): Unit {
         super.onResume()
+
         camera = Camera.open()
     }
 
@@ -169,4 +174,6 @@ class MainActivity : AppCompatActivity(),SurfaceHolder.Callback, View.OnClickLis
             return null
         }
     }
+
+    private fun isAcceptCamera(): Boolean = checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED
 }
