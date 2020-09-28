@@ -7,11 +7,8 @@ import android.hardware.Camera
 import android.hardware.Camera.Size
 import android.os.AsyncTask
 import android.os.Bundle
-import android.view.SurfaceHolder
-import android.view.SurfaceView
-import android.view.View
+import android.view.*
 import android.view.ViewGroup.LayoutParams
-import android.view.Window
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import java.io.File
@@ -30,7 +27,7 @@ class MainActivity : AppCompatActivity(),SurfaceHolder.Callback, View.OnClickLis
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_BEHIND
 
         // если хотим, чтобы приложение было полноэкранным
-        //window.addFlags(WindowManager.LayoutParams.Fu)
+        window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
 
         // и без заголовка
         requestWindowFeature(Window.FEATURE_NO_TITLE)
@@ -42,6 +39,7 @@ class MainActivity : AppCompatActivity(),SurfaceHolder.Callback, View.OnClickLis
         shotBtn = findViewById<View>(R.id.ButtonOne) as Button
         shotBtn.text = "Shot"
         shotBtn.setOnClickListener(this)
+
     }
 
     override fun onResume(): Unit {
