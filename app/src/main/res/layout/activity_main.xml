@@ -22,7 +22,8 @@
       android:layout_height="50dp"
       android:layout_marginBottom="672dp"
       android:contentDescription="@string/settings"
-      android:src="@drawable/setings">
+      android:src="@drawable/setings"
+      android:onClick="activitySettingStart">
 
 
 

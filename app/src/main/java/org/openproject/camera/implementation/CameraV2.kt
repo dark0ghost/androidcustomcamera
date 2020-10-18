@@ -26,7 +26,7 @@ import java.util.concurrent.Executor
 
 class CameraV2(private var cameraManager: CameraManager?, private var cameraId: String, context: Context, private val imageView: TextureView, nameFile: String ) {
     private var cameraDevice: CameraDevice? = null
-    private val logTag: String = org.openproject.camera.consts.Consts().logTag
+    private val logTag: String = org.openproject.camera.consts.ConstVar().logTag
     private lateinit var captureSession: CameraCaptureSession
     private lateinit var imageReader: ImageReader
     private lateinit var builder: CaptureRequest.Builder

@@ -1,10 +1,12 @@
 package org.openproject.camera
 
 
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.DisplayMetrics
 import android.util.Log
+import android.view.View
 import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.Toast
@@ -13,6 +15,7 @@ import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
 import org.openproject.camera.consts.ConstVar
 import org.openproject.camera.implementation.LuminosityAnalyzer
 import org.openproject.camera.permission.isAcceptCamera
@@ -33,25 +36,18 @@ class MainActivity: AppCompatActivity() {
     private lateinit var cameraExecutor: ExecutorService
     private val data = ConstVar()
     private lateinit var previews: PreviewView
-    private lateinit var container: FrameLayout
-    private var preview: Preview? = null
 
-    private fun aspectRatio(width: Int, height: Int): Int {
-        val previewRatio = max(width, height).toDouble() / min(width, height)
-        if (abs(previewRatio - RATIO_4_3_VALUE) <= abs(previewRatio - RATIO_16_9_VALUE)) {
-            return AspectRatio.RATIO_4_3
-        }
-        return AspectRatio.RATIO_16_9
-    }
+
     private fun takePhoto() {
-        val imageCapture = imageCapture ?: return
+        val imageCaptures = imageCapture ?: return
         val photoFile = File(
                 outputDirectory,
                 SimpleDateFormat(data.fileNameFormat, Locale.US
                 ).format(System.currentTimeMillis()) + ".jpg")
         val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile).build()
-        imageCapture.takePicture(
+        imageCaptures.takePicture(
                 outputOptions, ContextCompat.getMainExecutor(this), object : ImageCapture.OnImageSavedCallback {
+
             override fun onError(exc: ImageCaptureException) {
                 Log.e(data.logTag, "Photo capture failed: ${exc.message}", exc)
             }
@@ -66,48 +62,38 @@ class MainActivity: AppCompatActivity() {
     }
 
     private fun startCamera() {
-        val metrics = DisplayMetrics().also {
-            previews.display.getRealMetrics(it)
-        }
-        Log.d(data.logTag, "Screen metrics: ${metrics.widthPixels} x ${metrics.heightPixels}")
-
-        val screenAspectRatio = aspectRatio(metrics.widthPixels, metrics.heightPixels)
-
-        val rotation = previews.display.rotation
         val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
 
         cameraProviderFuture.addListener(Runnable {
             val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
-            val preview = Preview.Builder().setTargetAspectRatio(rotation)
 
+            // Preview
+            val preview = Preview.Builder()
+                    .build()
+                    .also {
+                        it.setSurfaceProvider(previews.surfaceProvider)
+                    }
             imageCapture = ImageCapture.Builder()
                     .build()
-
             val imageAnalyzer = ImageAnalysis.Builder()
                     .build()
-                    .also { it->
-                        it.setAnalyzer(cameraExecutor, LuminosityAnalyzer {luma->
+                    .also {
+                        it.setAnalyzer(cameraExecutor, LuminosityAnalyzer { luma ->
                             Log.d(data.logTag, "Average luminosity: $luma")
                         })
                     }
-
-            // Select back camera as a default
             val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
-
             try {
-                // Unbind use cases before rebinding
                 cameraProvider.unbindAll()
-
-                // Bind use cases to camera
                 cameraProvider.bindToLifecycle(
                         this, cameraSelector, preview, imageCapture, imageAnalyzer)
-
             } catch(exc: Exception) {
                 Log.e(data.logTag, "Use case binding failed", exc)
             }
-
         }, ContextCompat.getMainExecutor(this))
     }
+
+
 
     private fun getOutputDirectory(): File {
         val mediaDir = externalMediaDirs.firstOrNull()?.let {
@@ -120,14 +106,14 @@ class MainActivity: AppCompatActivity() {
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        if (isAcceptCamera(this@MainActivity)) requestCameraPermission(this@MainActivity)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        if (!isAcceptCamera(this@MainActivity)) requestCameraPermission(this@MainActivity)
         startCamera()
         val cameraButton= findViewById<Button>( R.id.MakePhoto)
         previews = findViewById(R.id.viewFinder)
         cameraButton.setOnClickListener {
-                takePhoto()
+            takePhoto()
         }
         outputDirectory = getOutputDirectory()
         cameraExecutor = Executors.newSingleThreadExecutor()
@@ -140,5 +126,9 @@ class MainActivity: AppCompatActivity() {
         cameraExecutor.shutdown()
     }
 
+    fun activitySettingStart(view: View) {
+        val intent = Intent(this,SettingsActivity::class.java)
+        startActivity(intent)
+    }
 
 }
