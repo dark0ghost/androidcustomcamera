@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout android:id="@+id/FrameLayoutOne"
+    android:layout_width="fill_parent" android:layout_height="fill_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+  <androidx.camera.view.PreviewView
+      android:id="@+id/viewFinder"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent" />
+
+
+  <Button
+      android:id="@+id/MakePhoto"
+      android:layout_width="100dp"
+      android:layout_height="116dp"
+      android:layout_gravity="center"
+      android:layout_marginTop="210dp"
+      android:background="@drawable/roundedbutton" />
+
+  <ImageButton
+      android:id="@+id/settings_button"
+      android:layout_width="50dp"
+      android:layout_height="50dp"
+      android:layout_marginBottom="672dp"
+      android:contentDescription="@string/settings"
+      android:src="@drawable/setings">
+
+
+
+  </ImageButton>
+
+</FrameLayout>
