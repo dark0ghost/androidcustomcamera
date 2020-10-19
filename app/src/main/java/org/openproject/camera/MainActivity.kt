@@ -17,6 +17,7 @@ import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import org.openproject.camera.consts.ConstVar
+import org.openproject.camera.implementation.GlobalSettings
 import org.openproject.camera.implementation.LuminosityAnalyzer
 import org.openproject.camera.permission.isAcceptCamera
 import org.openproject.camera.permission.requestCameraPermission
@@ -39,26 +40,34 @@ class MainActivity: AppCompatActivity() {
 
 
     private fun takePhoto() {
-        val imageCaptures = imageCapture ?: return
-        val photoFile = File(
+        if (!GlobalSettings.ramMode) {
+            val imageCaptures = imageCapture ?: return
+            val photoFile = File(
                 outputDirectory,
-                SimpleDateFormat(data.fileNameFormat, Locale.US
-                ).format(System.currentTimeMillis()) + ".jpg")
-        val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile).build()
-        imageCaptures.takePicture(
-                outputOptions, ContextCompat.getMainExecutor(this), object : ImageCapture.OnImageSavedCallback {
+                SimpleDateFormat(
+                    data.fileNameFormat, Locale.US
+                ).format(System.currentTimeMillis()) + ".jpg"
+            )
+            val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile).build()
+            imageCaptures.takePicture(
+                outputOptions,
+                ContextCompat.getMainExecutor(this),
+                object : ImageCapture.OnImageSavedCallback {
 
-            override fun onError(exc: ImageCaptureException) {
-                Log.e(data.logTag, "Photo capture failed: ${exc.message}", exc)
-            }
+                    override fun onError(exc: ImageCaptureException) {
+                        Log.e(data.logTag, "Photo capture failed: ${exc.message}", exc)
+                    }
 
-            override fun onImageSaved(output: ImageCapture.OutputFileResults) {
-                val savedUri = Uri.fromFile(photoFile)
-                val msg = "Photo capture succeeded: $savedUri"
-                Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
-                Log.d(data.logTag, msg)
-            }
-        })
+                    override fun onImageSaved(output: ImageCapture.OutputFileResults) {
+                        val savedUri = Uri.fromFile(photoFile)
+                        val msg = "Photo capture succeeded: $savedUri"
+                        Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
+                        Log.d(data.logTag, msg)
+                    }
+                })
+        }else{
+
+        }
     }
 
     private fun startCamera() {
@@ -130,7 +139,7 @@ class MainActivity: AppCompatActivity() {
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         Log.d(data.logTag,"code: $requestCode")
-       // startCamera()
+        startCamera()
     }
 
     fun activitySettingStart(view: View) {
