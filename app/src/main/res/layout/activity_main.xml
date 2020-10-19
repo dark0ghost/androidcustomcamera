@@ -14,7 +14,7 @@
       android:layout_height="116dp"
       android:layout_gravity="center"
       android:layout_marginTop="210dp"
-      android:background="@drawable/roundedbutton" />
+      android:background="@drawable/roundedbutton"/>
 
   <ImageButton
       android:id="@+id/settings_button"
@@ -24,9 +24,5 @@
       android:contentDescription="@string/settings"
       android:src="@drawable/setings"
       android:onClick="activitySettingStart">
-
-
-
   </ImageButton>
-
 </FrameLayout>
