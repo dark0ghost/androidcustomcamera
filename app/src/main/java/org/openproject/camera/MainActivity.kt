@@ -109,7 +109,8 @@ class MainActivity: AppCompatActivity() {
         if (isAcceptCamera(this@MainActivity)) requestCameraPermission(this@MainActivity)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        startCamera()
+        supportActionBar?.hide()
+        if (!isAcceptCamera(this@MainActivity)) startCamera()
         val cameraButton= findViewById<Button>( R.id.MakePhoto)
         previews = findViewById(R.id.viewFinder)
         cameraButton.setOnClickListener {
@@ -126,9 +127,16 @@ class MainActivity: AppCompatActivity() {
         cameraExecutor.shutdown()
     }
 
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        Log.d(data.logTag,"code: $requestCode")
+       // startCamera()
+    }
+
     fun activitySettingStart(view: View) {
         val intent = Intent(this,SettingsActivity::class.java)
         startActivity(intent)
     }
+
 
 }

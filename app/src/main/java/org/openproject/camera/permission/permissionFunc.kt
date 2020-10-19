@@ -9,4 +9,4 @@ import androidx.core.content.PermissionChecker.checkSelfPermission
 
 fun isAcceptCamera(context: Context): Boolean = checkSelfPermission(context,Manifest.permission.CAMERA) != PermissionChecker.PERMISSION_GRANTED
 fun requestCameraPermission(activity: Activity): Unit =
-    ActivityCompat.requestPermissions(activity, arrayOf<String>(Manifest.permission.CAMERA,Manifest.permission.NFC,Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.RECORD_AUDIO),1)
+    ActivityCompat.requestPermissions(activity, arrayOf(Manifest.permission.CAMERA,Manifest.permission.NFC,Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.RECORD_AUDIO),1)

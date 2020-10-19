@@ -17,8 +17,6 @@ data class ConstVar(val logTag: String = "CameraLogs",val fileNameFormat: String
         result = 31 * result + requestCodePermission
         result = 31 * result + requiredPermissions.contentHashCode()
         return result
-
-
     }
 
     override fun toString(): String {
@@ -28,7 +26,7 @@ data class ConstVar(val logTag: String = "CameraLogs",val fileNameFormat: String
             format:$fileNameFormat,
             code premission:$requestCodePermission
             required permissions$requiredPermissions
-            
+            }
         """.trimIndent()
     }
 }
