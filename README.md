@@ -4,4 +4,4 @@
  
  
 
-[](https://github.com/dark0ghost/androidcustomcamera/static/app.png)
+[](https://github.com/dark0ghost/androidcustomcamera/blob/master/static/app.png)
