@@ -12,6 +12,8 @@ android:versionName="1.0">
     android:icon="@drawable/camera_logo"
     android:theme="@style/Theme.AppCompat"
     android:allowBackup="false">
+    <meta-data android:name="settings" android:value="settings.db" />
+    <meta-data android:name="1" android:value="1" />
     <activity android:name=".MainActivity" android:label="@string/app_name">
         <intent-filter>
             <action android:name="android.intent.action.MAIN" />
