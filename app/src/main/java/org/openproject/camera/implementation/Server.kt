@@ -7,7 +7,7 @@ import java.io.PrintWriter
 import java.net.ServerSocket
 import java.net.Socket
 
-open class Server(private val ip:String, private val port: Int, private val openPort:Int, private val trigger: String) {
+open class Server(private val trigger: String) {
     private lateinit var serverSocket: ServerSocket
     private lateinit var clientSocket: Socket
     private lateinit var outData: PrintWriter
@@ -21,7 +21,9 @@ open class Server(private val ip:String, private val port: Int, private val open
               outData.println(callBack)
           }
     }
-    private fun initSocket(){
+
+
+    open fun newSocket(openPort: Int) {
         this.serverSocket = ServerSocket(openPort)
         this.clientSocket = serverSocket.accept()
     }
@@ -35,6 +37,5 @@ open class Server(private val ip:String, private val port: Int, private val open
 
     open fun readSocket(callBack: ()->Image){
         this.startServer(callBack)
-
     }
 }
