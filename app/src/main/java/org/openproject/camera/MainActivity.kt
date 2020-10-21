@@ -53,7 +53,6 @@ class MainActivity: AppCompatActivity() {
                 outputOptions,
                 ContextCompat.getMainExecutor(this),
                 object : ImageCapture.OnImageSavedCallback {
-
                     override fun onError(exc: ImageCaptureException) {
                         Log.e(data.logTag, "Photo capture failed: ${exc.message}", exc)
                     }
@@ -65,18 +64,13 @@ class MainActivity: AppCompatActivity() {
                         Log.d(data.logTag, msg)
                     }
                 })
-        }else{
-
         }
     }
 
     private fun startCamera() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
-
         cameraProviderFuture.addListener(Runnable {
             val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
-
-            // Preview
             val preview = Preview.Builder()
                     .build()
                     .also {
