@@ -8,6 +8,7 @@ android:versionName="1.0">
     <uses-feature android:name="android.hardware.camera.autofocus" />
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
     <uses-permission android:name="android.permission.NFC"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
 <application
     android:icon="@drawable/camera_logo"
     android:theme="@style/Theme.AppCompat"

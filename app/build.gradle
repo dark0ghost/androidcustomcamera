@@ -47,7 +47,8 @@ dependencies {
     implementation "androidx.camera:camera-lifecycle:1.0.0-beta11"
     implementation "androidx.camera:camera-view:1.0.0-alpha18"
 
-    //implementation("com.neovisionaries:nv-websocket-client:2.10")
+    implementation "io.ktor:ktor-client-core:1.0.1"
+    implementation "io.ktor:ktor-client-android:1.0.1"
 
     testImplementation 'junit:junit:4.13'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
