@@ -136,7 +136,7 @@ class MainActivity: AppCompatActivity() {
         startCamera()
     }
 
-    fun activitySettingStart(view: View) {
+    fun activitySettingStart() {
         val intent = Intent(this,SettingsActivity::class.java)
         startActivity(intent)
     }
