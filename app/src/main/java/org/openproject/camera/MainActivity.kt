@@ -3,19 +3,21 @@ package org.openproject.camera
 
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
-import android.util.DisplayMetrics
+import android.os.Process
+import android.os.StrictMode
+import android.os.StrictMode.ThreadPolicy
 import android.util.Log
-import android.view.View
 import android.widget.Button
-import android.widget.FrameLayout
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.Fragment
+import com.activeandroid.ActiveAndroid
+import com.activeandroid.Configuration
 import org.openproject.camera.consts.ConstVar
 import org.openproject.camera.implementation.GlobalSettings
 import org.openproject.camera.implementation.LuminosityAnalyzer
@@ -26,9 +28,6 @@ import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
-import kotlin.math.abs
-import kotlin.math.max
-import kotlin.math.min
 
 
 class MainActivity: AppCompatActivity() {
@@ -72,25 +71,26 @@ class MainActivity: AppCompatActivity() {
         cameraProviderFuture.addListener(Runnable {
             val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
             val preview = Preview.Builder()
-                    .build()
-                    .also {
-                        it.setSurfaceProvider(previews.surfaceProvider)
-                    }
+                .build()
+                .also {
+                    it.setSurfaceProvider(previews.surfaceProvider)
+                }
             imageCapture = ImageCapture.Builder()
-                    .build()
+                .build()
             val imageAnalyzer = ImageAnalysis.Builder()
-                    .build()
-                    .also {
-                        it.setAnalyzer(cameraExecutor, LuminosityAnalyzer { luma ->
-                            Log.d(data.logTag, "Average luminosity: $luma")
-                        })
-                    }
+                .build()
+                .also {
+                    it.setAnalyzer(cameraExecutor, LuminosityAnalyzer { luma ->
+                        Log.d(data.logTag, "Average luminosity: $luma")
+                    })
+                }
             val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
             try {
                 cameraProvider.unbindAll()
                 cameraProvider.bindToLifecycle(
-                        this, cameraSelector, preview, imageCapture, imageAnalyzer)
-            } catch(exc: Exception) {
+                    this, cameraSelector, preview, imageCapture, imageAnalyzer
+                )
+            } catch (exc: Exception) {
                 Log.e(data.logTag, "Use case binding failed", exc)
             }
         }, ContextCompat.getMainExecutor(this))
@@ -111,18 +111,22 @@ class MainActivity: AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         if (isAcceptCamera(this@MainActivity)) requestCameraPermission(this@MainActivity)
         super.onCreate(savedInstanceState)
+        val policy = ThreadPolicy.Builder().permitAll().build()
+        StrictMode.setThreadPolicy(policy)
+        val dbConfiguration: Configuration = Configuration.Builder(this@MainActivity).setDatabaseName(
+            "settings.db"
+        ).create()
+        ActiveAndroid.initialize(dbConfiguration)
         setContentView(R.layout.activity_main)
         supportActionBar?.hide()
         if (!isAcceptCamera(this@MainActivity)) startCamera()
-        val cameraButton= findViewById<Button>( R.id.MakePhoto)
+        val cameraButton= findViewById<Button>(R.id.MakePhoto)
         previews = findViewById(R.id.viewFinder)
         cameraButton.setOnClickListener {
             takePhoto()
         }
         outputDirectory = getOutputDirectory()
         cameraExecutor = Executors.newSingleThreadExecutor()
-
-
     }
 
     override fun onDestroy() {
@@ -130,14 +134,22 @@ class MainActivity: AppCompatActivity() {
         cameraExecutor.shutdown()
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        Log.d(data.logTag,"code: $requestCode")
+        Log.d(data.logTag, "code: $requestCode")
         startCamera()
+    }
+    override fun onLowMemory() {
+        Process.killProcess(Process.myPid())
+        super.onLowMemory()
     }
 
     fun activitySettingStart() {
-        val intent = Intent(this,SettingsActivity::class.java)
+        val intent = Intent(this, SettingsActivity::class.java)
         startActivity(intent)
     }
 
