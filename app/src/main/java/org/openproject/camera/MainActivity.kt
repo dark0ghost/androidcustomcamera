@@ -3,7 +3,6 @@ package org.openproject.camera
 
 import android.content.Intent
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.os.Process
 import android.os.StrictMode
@@ -16,11 +15,10 @@ import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
-import com.activeandroid.ActiveAndroid
-import com.activeandroid.Configuration
 import org.openproject.camera.consts.ConstVar
 import org.openproject.camera.implementation.GlobalSettings
 import org.openproject.camera.implementation.LuminosityAnalyzer
+import org.openproject.camera.implementation.Server
 import org.openproject.camera.permission.isAcceptCamera
 import org.openproject.camera.permission.requestCameraPermission
 import java.io.File
@@ -30,12 +28,13 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
 
-class MainActivity: AppCompatActivity() {
+open class MainActivity: AppCompatActivity() {
     private var imageCapture: ImageCapture? = null
     private lateinit var outputDirectory: File
     private lateinit var cameraExecutor: ExecutorService
     private val data = ConstVar()
     private lateinit var previews: PreviewView
+    private lateinit var server: Server
 
 
     private fun takePhoto() {
@@ -113,13 +112,13 @@ class MainActivity: AppCompatActivity() {
         super.onCreate(savedInstanceState)
         val policy = ThreadPolicy.Builder().permitAll().build()
         StrictMode.setThreadPolicy(policy)
-        val dbConfiguration: Configuration = Configuration.Builder(this@MainActivity).setDatabaseName(
-            "settings.db"
-        ).create()
-        ActiveAndroid.initialize(dbConfiguration)
         setContentView(R.layout.activity_main)
         supportActionBar?.hide()
         if (!isAcceptCamera(this@MainActivity)) startCamera()
+        if (GlobalSettings.startServer){
+            server = Server(GlobalSettings.trigger,GlobalSettings.ip,GlobalSettings.port)
+
+        }
         val cameraButton= findViewById<Button>(R.id.MakePhoto)
         previews = findViewById(R.id.viewFinder)
         cameraButton.setOnClickListener {
