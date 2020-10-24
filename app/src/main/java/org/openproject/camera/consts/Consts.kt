@@ -3,7 +3,7 @@ package org.openproject.camera.consts
 import android.Manifest
 
 data class ConstVar(val logTag: String = "CameraLogs",val fileNameFormat: String = "yyyy-MM-dd-HH-mm-ss-SSS",val requestCodePermission: Int = 10,val requiredPermissions: Array<String> = arrayOf(
-    Manifest.permission.CAMERA), val DATABASE_VERSION: Int = 1, val DATABASE_NAME: String = "settings.db") {
+    Manifest.permission.CAMERA)) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
