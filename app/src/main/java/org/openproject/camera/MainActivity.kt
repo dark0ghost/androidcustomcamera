@@ -8,6 +8,7 @@ import android.os.Process
 import android.os.StrictMode
 import android.os.StrictMode.ThreadPolicy
 import android.util.Log
+import android.view.View
 import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -15,6 +16,10 @@ import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
+import io.ktor.util.*
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
 import org.openproject.camera.consts.ConstVar
 import org.openproject.camera.implementation.GlobalSettings
 import org.openproject.camera.implementation.LuminosityAnalyzer
@@ -26,6 +31,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import kotlin.system.measureTimeMillis
 
 
 open class MainActivity: AppCompatActivity() {
@@ -107,7 +113,8 @@ open class MainActivity: AppCompatActivity() {
     }
 
 
-    override fun onCreate(savedInstanceState: Bundle?) {
+    @KtorExperimentalAPI
+    override  fun onCreate(savedInstanceState: Bundle?) {
         if (isAcceptCamera(this@MainActivity)) requestCameraPermission(this@MainActivity)
         super.onCreate(savedInstanceState)
         val policy = ThreadPolicy.Builder().permitAll().build()
@@ -115,9 +122,12 @@ open class MainActivity: AppCompatActivity() {
         setContentView(R.layout.activity_main)
         supportActionBar?.hide()
         if (!isAcceptCamera(this@MainActivity)) startCamera()
-        if (GlobalSettings.startServer){
+        if (GlobalSettings.startServer && !GlobalSettings.isServerStart){
             server = Server(GlobalSettings.trigger,GlobalSettings.ip,GlobalSettings.port)
-
+            GlobalScope.async {
+                server.start()
+            }.start()
+            GlobalSettings.isServerStart = true
         }
         val cameraButton= findViewById<Button>(R.id.MakePhoto)
         previews = findViewById(R.id.viewFinder)
@@ -128,9 +138,13 @@ open class MainActivity: AppCompatActivity() {
         cameraExecutor = Executors.newSingleThreadExecutor()
     }
 
+    @KtorExperimentalAPI
     override fun onDestroy() {
         super.onDestroy()
         cameraExecutor.shutdown()
+        GlobalScope.async {
+            server.close()
+        }.start()
     }
 
     override fun onRequestPermissionsResult(
@@ -147,7 +161,7 @@ open class MainActivity: AppCompatActivity() {
         super.onLowMemory()
     }
 
-    fun activitySettingStart() {
+    fun activitySettingStart(view: View) {
         val intent = Intent(this, SettingsActivity::class.java)
         startActivity(intent)
     }

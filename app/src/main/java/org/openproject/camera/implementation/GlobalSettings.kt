@@ -10,6 +10,7 @@ object GlobalSettings {
    lateinit var apiString: String
    var startServer: Boolean = true
    var trigger: String = "send photo"
+   var isServerStart: Boolean = false
 
    fun loadConfig(): Unit {
 

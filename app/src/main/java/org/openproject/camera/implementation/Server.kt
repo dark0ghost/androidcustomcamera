@@ -16,6 +16,7 @@ open class Server(private val trigger: String,private val ip: String,private val
 
     @KtorExperimentalAPI
     suspend fun start() = coroutineScope {
+        println("Started echo telnet server at ${server.localAddress}")
         while (true) {
             clientSocket = server.accept()
             launch {
@@ -24,9 +25,10 @@ open class Server(private val trigger: String,private val ip: String,private val
                 val output = clientSocket.openWriteChannel(autoFlush = true)
                 try {
                     while (true) {
-                        val line = input.readUTF8Line(1000)
+                        val line: String? = input.readUTF8Line(1000)
                         println("${clientSocket.remoteAddress}: $line")
-                       // output.write(1,"$line\r\n")
+                        output.write(1,){
+                        }
                     }
                 } catch (e: Throwable) {
                     e.printStackTrace()
@@ -36,10 +38,6 @@ open class Server(private val trigger: String,private val ip: String,private val
         }
 
     }
-    open fun startThread(){
-
-    }
-
 
     @KtorExperimentalAPI
     suspend fun close(){
