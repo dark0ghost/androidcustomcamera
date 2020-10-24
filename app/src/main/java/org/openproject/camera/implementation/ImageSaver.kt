@@ -1,10 +1,8 @@
 package org.openproject.camera.implementation
 
 import android.media.Image
-import org.openproject.camera.fn.printTrace
 import java.io.File
 import java.io.FileOutputStream
-import java.io.IOException
 import java.nio.ByteBuffer
 
 class ImageSaver(private var image: Image, private var file: File): Runnable {

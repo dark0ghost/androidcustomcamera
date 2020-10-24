@@ -1,7 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    >
 
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <ImageButton
+        android:id="@+id/change_view"
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:contentDescription="@string/change_view"
+        android:src="@drawable/back">
+
+
+    </ImageButton>
+
+
+    <ToggleButton
+        android:id="@+id/ram_mode"
+        android:layout_width="100dp"
+        android:layout_height="116dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="210dp"/>
+
+
+
+
+</FrameLayout>
