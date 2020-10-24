@@ -5,7 +5,7 @@ import kotlin.properties.Delegates
 object GlobalSettings {
 
    var ramMode: Boolean = false
-   var port by Delegates.notNull<Int>()
+   var port = 5050
    var ip: String = "0.0.0.0"
    lateinit var apiString: String
    var startServer: Boolean = true
