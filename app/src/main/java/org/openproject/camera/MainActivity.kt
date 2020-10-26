@@ -8,7 +8,6 @@ import android.os.Process
 import android.os.StrictMode
 import android.os.StrictMode.ThreadPolicy
 import android.util.Log
-import android.view.View
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.Toast
@@ -18,13 +17,8 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
 import io.ktor.util.*
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import org.openproject.camera.consts.ConstVar
-import org.openproject.camera.implementation.GlobalSettings
-import org.openproject.camera.implementation.ImageStorage
-import org.openproject.camera.implementation.LuminosityAnalyzer
-import org.openproject.camera.implementation.Server
+import org.openproject.camera.implementation.*
 import org.openproject.camera.permission.isAcceptCamera
 import org.openproject.camera.permission.requestCameraPermission
 import java.io.File
@@ -40,7 +34,7 @@ open class MainActivity: AppCompatActivity() {
     private lateinit var cameraExecutor: ExecutorService
     private val data = ConstVar()
     private lateinit var previews: PreviewView
-    private lateinit var server: Server
+    private lateinit var server: ThreadServer
     private  val  imageStorage: ImageStorage = ImageStorage()
     private lateinit var  imageButton: ImageButton
     private lateinit var cameraButton: Button
@@ -70,7 +64,21 @@ open class MainActivity: AppCompatActivity() {
                         Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
                         Log.d(data.logTag, msg)
                     }
-                })
+                }
+            )
+        }else{
+            imageCapture?.takePicture(
+                    ImageCapture
+                            .OutputFileOptions
+                            .Builder(imageStorage)
+                            .build(),
+                    ContextCompat
+                            .getMainExecutor(this),
+                    RamCallBack(data
+                            .logTag
+                    )
+            )
+            println("buffer ${imageStorage.dataBuffer}")
         }
     }
 
@@ -105,8 +113,6 @@ open class MainActivity: AppCompatActivity() {
         }, ContextCompat.getMainExecutor(this))
     }
 
-
-
     private fun getOutputDirectory(): File {
         val mediaDir = externalMediaDirs.firstOrNull()?.let {
             File(it, resources.getString(R.string.app_name)).apply {
@@ -115,7 +121,6 @@ open class MainActivity: AppCompatActivity() {
         }
         return if (mediaDir != null && mediaDir.exists()) mediaDir else filesDir
     }
-
 
     @KtorExperimentalAPI
     override  fun onCreate(savedInstanceState: Bundle?) {
@@ -127,28 +132,25 @@ open class MainActivity: AppCompatActivity() {
         supportActionBar?.hide()
         if (!isAcceptCamera(this@MainActivity)) startCamera()
         if (GlobalSettings.startServer && !GlobalSettings.isServerStart){
-            server = Server(GlobalSettings.trigger,GlobalSettings.ip,GlobalSettings.port,data.logTag){
-                imageCapture?.takePicture(ImageCapture.OutputFileOptions.Builder(imageStorage).build(), ContextCompat.getMainExecutor(this),object : ImageCapture.OnImageSavedCallback {
-                    override fun onError(exc: ImageCaptureException) {
-                        Log.e(data.logTag, "Photo capture failed: ${exc.message}", exc)
-                    }
-
-                    override fun onImageSaved(output: ImageCapture.OutputFileResults) {
-                        /*val savedUri = Uri.fromFile(photoFile)
-                        val msg = "Photo capture succeeded: $savedUri"
-                        Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
-                        Log.d(data.logTag, msg)*/
-                    }
-                })
-                return@Server 1.toByte()
+            server = ThreadServer(GlobalSettings.trigger,GlobalSettings.ip,GlobalSettings.port,data.logTag){
+                imageCapture?.takePicture(
+                        ImageCapture
+                                .OutputFileOptions
+                                .Builder(imageStorage)
+                                .build(),
+                        ContextCompat
+                                .getMainExecutor(this),
+                        RamCallBack(data
+                                .logTag
+                        )
+                )
+                return@ThreadServer this@MainActivity.imageStorage.dataBuffer[-1].toString()
             }
-            GlobalScope.launch {
-                server.start()
-            }
+            server.start()
             GlobalSettings.isServerStart = true
         }
-        cameraButton = findViewById<Button>(R.id.MakePhoto)
-        imageButton = findViewById<ImageButton>(R.id.settings_button)
+        cameraButton = findViewById(R.id.MakePhoto)
+        imageButton = findViewById(R.id.settings_button)
         previews = findViewById(R.id.viewFinder)
         cameraButton.setOnClickListener{
             this.takePhoto()
@@ -166,11 +168,9 @@ open class MainActivity: AppCompatActivity() {
         super.onDestroy()
         cameraExecutor.shutdown()
         if (!GlobalSettings.isServerStart) {
-            GlobalScope.launch {
                 server.close()
-            }
-            GlobalSettings.isServerStart = false
         }
+        imageStorage.close()
     }
 
     override fun onRequestPermissionsResult(
@@ -182,8 +182,10 @@ open class MainActivity: AppCompatActivity() {
         Log.d(data.logTag, "code: $requestCode")
         startCamera()
     }
+
     override fun onLowMemory() {
         Process.killProcess(Process.myPid())
+        imageStorage.close()
         super.onLowMemory()
     }
 }
