@@ -2,10 +2,7 @@ package org.openproject.camera.implementation
 import android.util.Log
 import org.openproject.camera.fn.printTrace
 import org.openproject.camera.interface_package.ServerThreadInterface
-import java.io.BufferedReader
-import java.io.InputStreamReader
-import java.io.PrintWriter
-import java.net.InetAddress
+import java.io.*
 import java.net.ServerSocket
 import java.net.Socket
 
@@ -18,17 +15,27 @@ open class ThreadServer(private val trigger: String, private val ip: String, ope
 
     private fun runServer(){
         GlobalSettings.isServerStart = true
+        Log.e(logTag,"run")
         try {
             while (!isStop){
+                Log.e(logTag,"wait")
                 clientSocket = serverSocket.accept()
                 Log.e(logTag,"connect")
-                val inputData = BufferedReader(InputStreamReader(clientSocket.getInputStream()))
-                for (i in inputData.readLines())
-                if (isCommand(i)){
-                    if (bufferSender != null && !bufferSender!!.checkError()) {
-                        bufferSender!!.println(callaBack())
-                        bufferSender!!.flush()
-                    }
+                val inputStream = clientSocket.getInputStream()
+                val inputData = BufferedReader(InputStreamReader(inputStream))
+                bufferSender = PrintWriter(
+                        BufferedWriter(
+                            OutputStreamWriter(
+                                clientSocket.getOutputStream()
+                            )
+                        ),
+                        true)
+                if (isCommand(inputData.readLine())){
+                    bufferSender!!.println(callaBack())
+                    bufferSender!!.flush()
+                }else{
+                    bufferSender!!.println("no")
+                    bufferSender!!.flush()
                 }
             }
         }catch (e: Exception){
@@ -47,8 +54,8 @@ open class ThreadServer(private val trigger: String, private val ip: String, ope
     override fun run() {
         Log.e(logTag, "Started echo telnet server at ${serverSocket.localSocketAddress}")
         this.isStop = false
-        super.run()
         this.runServer()
+        super.run()
     }
 
     override fun close() {

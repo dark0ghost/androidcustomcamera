@@ -14,4 +14,4 @@ fun isAcceptWriteExternalStorage(context: Context): Boolean =
 fun isAcceptRecordAudio(context: Context): Boolean = checkSelfPermission(context,Manifest.permission.RECORD_AUDIO) != PermissionChecker.PERMISSION_GRANTED
 fun isAcceptInternet(context: Context): Boolean = checkSelfPermission(context,Manifest.permission.INTERNET) != PermissionChecker.PERMISSION_GRANTED
 fun requestCameraPermission(activity: Activity): Unit =
-    ActivityCompat.requestPermissions(activity, arrayOf(Manifest.permission.CAMERA,Manifest.permission.NFC,Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.RECORD_AUDIO,Manifest.permission.INTERNET),1)
+    ActivityCompat.requestPermissions(activity, arrayOf(Manifest.permission.CAMERA),1)

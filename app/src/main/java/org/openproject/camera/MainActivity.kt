@@ -16,7 +16,6 @@ import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
-import io.ktor.util.*
 import org.openproject.camera.consts.ConstVar
 import org.openproject.camera.implementation.*
 import org.openproject.camera.permission.isAcceptCamera
@@ -122,7 +121,6 @@ open class MainActivity: AppCompatActivity() {
         return if (mediaDir != null && mediaDir.exists()) mediaDir else filesDir
     }
 
-    @KtorExperimentalAPI
     override  fun onCreate(savedInstanceState: Bundle?) {
         if (isAcceptCamera(this@MainActivity)) requestCameraPermission(this@MainActivity)
         super.onCreate(savedInstanceState)
@@ -163,7 +161,6 @@ open class MainActivity: AppCompatActivity() {
         cameraExecutor = Executors.newSingleThreadExecutor()
     }
 
-    @KtorExperimentalAPI
     override fun onDestroy() {
         super.onDestroy()
         cameraExecutor.shutdown()
