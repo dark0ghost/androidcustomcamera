@@ -21,6 +21,7 @@ import org.openproject.camera.implementation.*
 import org.openproject.camera.permission.isAcceptCamera
 import org.openproject.camera.permission.requestCameraPermission
 import java.io.File
+import java.lang.Thread.sleep
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.ExecutorService
@@ -77,7 +78,6 @@ open class MainActivity: AppCompatActivity() {
                             .logTag
                     )
             )
-            println("buffer ${imageStorage.dataBuffer}")
         }
     }
 
@@ -140,9 +140,14 @@ open class MainActivity: AppCompatActivity() {
                                 .getMainExecutor(this),
                         RamCallBack(data
                                 .logTag
-                        )
+                        ){
+                            server.isPhotoSave = true
+                        }
                 )
-                return@ThreadServer this@MainActivity.imageStorage.dataBuffer[-1].toString()
+                while(!server.isPhotoSave) sleep(10)
+                val result = this@MainActivity.imageStorage.intArray.toString()
+                this@MainActivity.imageStorage.intArray.clear()
+                return@ThreadServer result
             }
             server.start()
             GlobalSettings.isServerStart = true

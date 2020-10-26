@@ -1,7 +1,7 @@
 package org.openproject.camera.implementation
 
 object GlobalSettings {
-   var ramMode: Boolean = true
+   var ramMode: Boolean = false
    var port = 4290
    var ip: String = "0.0.0.0"
    var startServer: Boolean = true

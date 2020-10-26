@@ -12,6 +12,7 @@ open class ThreadServer(private val trigger: String, private val ip: String, ope
     private var isStop: Boolean = false
     private var bufferSender: PrintWriter? = null
     private fun isCommand(message: String): Boolean = message == trigger
+    open var isPhotoSave:Boolean = false
 
     private fun runServer(){
         GlobalSettings.isServerStart = true
@@ -30,9 +31,11 @@ open class ThreadServer(private val trigger: String, private val ip: String, ope
                             )
                         ),
                         true)
+                Log.e(logTag,"check")
                 if (isCommand(inputData.readLine())){
                     bufferSender!!.println(callaBack())
                     bufferSender!!.flush()
+                    Log.e(logTag,"send")
                 }else{
                     bufferSender!!.println("no")
                     bufferSender!!.flush()
