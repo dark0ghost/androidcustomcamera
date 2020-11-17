@@ -1,6 +1,6 @@
 ## android custom camera
 [![GitHub issues](https://img.shields.io/github/issues/dark0ghost/androidcustomcamera)](https://github.com/dark0ghost/androidcustomcamera/issues)
-[![GitHub release](https://img.shields.io/github/releases/dark0ghost/androidcustomcamera)](https://github.com/dark0ghost/androidcustomcamera/releases/)
+[![GitHub release](https://img.shields.io/github/release/dark0ghost/androidcustomcamera)](https://github.com/dark0ghost/androidcustomcamera/releases/)
 [![Github all releases](https://img.shields.io/github/downloads/dark0ghost/androidcustomcamera/total.svg)](https://github.com/dark0ghost/androidcustomcamera/releases/)
 [![GitHub watchers](https://img.shields.io/github/watchers/Ndark0ghost/androidcustomcamera?style=social&label=Watch&maxAge=2592000)](https://github.com/dark0ghost/androidcustomcamera/watchers/)
 ## about
