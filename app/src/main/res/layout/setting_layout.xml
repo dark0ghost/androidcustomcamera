@@ -8,23 +8,15 @@
 
     <ImageButton
         android:id="@+id/change_view"
-        android:layout_width="100dp"
-        android:layout_height="50dp"
+        android:layout_width="38dp"
+        android:layout_height="32dp"
         android:contentDescription="@string/change_view"
-        android:src="@drawable/back">
+        android:src="@drawable/cancel" />
 
-
-    </ImageButton>
-
-
-    <ToggleButton
-        android:id="@+id/ram_mode"
-        android:layout_width="100dp"
-        android:layout_height="116dp"
-        android:layout_gravity="center"
-        android:layout_marginTop="210dp"/>
-
-
-
-
+    <ListView
+        android:id="@+id/listView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        >
+    </ListView>
 </FrameLayout>
