@@ -114,7 +114,7 @@ open class MainActivity: AppCompatActivity() {
 
     private fun getOutputDirectory(): File {
         val mediaDir = externalMediaDirs.firstOrNull()?.let {
-            File(it, resources.getString(R.string.app_name)).apply {
+            File(it, "camera").apply {
                 mkdirs()
             }
         }
