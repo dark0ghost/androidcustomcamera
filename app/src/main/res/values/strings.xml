@@ -3,10 +3,8 @@
     <string name="settings">Настройки</string>
     <string name="change_view">change view</string>
     <string-array name="ru_text_settings">
-        <item>Включить сервер</item>
-        <item>Выключить сервер </item>
-        <item>Выключить дальномер</item>
-        <item>включить дальномер</item>
+        <item>сервер</item>
+        <item>дальномер</item>
     </string-array>
 </resources>
 

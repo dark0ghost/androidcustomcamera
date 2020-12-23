@@ -2,17 +2,15 @@ package org.openproject.camera
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.ArrayAdapter
-import android.widget.ImageButton
-import android.widget.ListView
-import android.widget.ToggleButton
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import org.openproject.camera.implementation.GlobalSettings
 
 
 class SettingsActivity: AppCompatActivity() {
 
-    private lateinit var changeModeSavePhotoButton: ToggleButton
     private lateinit var changeViewButton: ImageButton
+    private lateinit var  listView: ListView
 
 
 
@@ -20,17 +18,27 @@ class SettingsActivity: AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.setting_layout)
-        //changeModeSavePhotoButton = findViewById(R.id.ram_mode)
         changeViewButton = findViewById(R.id.change_view)
-        /*changeModeSavePhotoButton.setOnClickListener {
-            println("change mode")
-        }*/
+        listView = findViewById(R.id.listView)
+        setListVew()
+        listView.setOnItemClickListener {
+            parent, view, position, id ->
+            val tView: TextView = view as TextView
+            val text = tView.text.toString()
+            if (text == "сервер"){
+                // TODO: make off/on server and save parameter
+                return@setOnItemClickListener
+            }
+            if(text == "дальномер"){
+
+                return@setOnItemClickListener
+            }
+        }
         changeViewButton.setOnClickListener{
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
         }
         supportActionBar?.hide()
-        setListVew()
     }
 
     /**
@@ -40,8 +48,17 @@ class SettingsActivity: AppCompatActivity() {
         android:layout_height="77dp" />
      **/
     private fun setListVew(){
-        val listView: ListView = findViewById(R.id.listView)
-        val settingsItem: Array<out String> = resources.getStringArray(R.array.ru_text_settings)
+        val settingsItem: Array<String> = resources.getStringArray(R.array.ru_text_settings)
+        if (GlobalSettings.isServerStart){
+            settingsItem[0] = (("включен " + settingsItem[0]))
+        }else{
+            settingsItem[0] = (("выключен " + settingsItem[0]))
+        }
+        if (GlobalSettings.isRangeFinderStart){
+            settingsItem[1] = (("включен " + settingsItem[1]))
+        }else{
+            settingsItem[1] = (("выключен " + settingsItem[1]))
+        }
         val adapter:ArrayAdapter<String> = ArrayAdapter(this,
                 android.R.layout.simple_list_item_1, settingsItem)
         listView.adapter = adapter

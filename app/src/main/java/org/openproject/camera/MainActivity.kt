@@ -129,7 +129,7 @@ open class MainActivity: AppCompatActivity() {
         setContentView(R.layout.activity_main)
         supportActionBar?.hide()
         if (!isAcceptCamera(this@MainActivity)) startCamera()
-        if (GlobalSettings.startServer && !GlobalSettings.isServerStart){
+        if (GlobalSettings.startServer && GlobalSettings.isServerStart){
             server = ThreadServer(GlobalSettings.trigger,GlobalSettings.ip,GlobalSettings.port,data.logTag){
                 imageCapture?.takePicture(
                         ImageCapture

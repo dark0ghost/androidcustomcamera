@@ -8,4 +8,5 @@ object GlobalSettings {
    var trigger: String = "send photo"
    var isServerStart: Boolean = false
    var ipServer: String = "$ip:$port"
+   var isRangeFinderStart: Boolean = false
 }
