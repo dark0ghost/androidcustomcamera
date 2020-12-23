@@ -11,10 +11,10 @@ class SettingsActivity: AppCompatActivity() {
 
     private lateinit var changeViewButton: ImageButton
     private lateinit var  listView: ListView
-    private  val settingsItem: Array<String> = resources.getStringArray(R.array.ru_text_settings)
+
 
     private fun setListVew(){
-        //val settingsItem: Array<String> = resources.getStringArray(R.array.ru_text_settings)
+        val settingsItem: Array<String> = resources.getStringArray(R.array.ru_text_settings)
         val arrayItem: MutableList<String> = mutableListOf()
         if (GlobalSettings.isServerStart){
             arrayItem.add(("включен " + settingsItem[0]))
@@ -35,6 +35,7 @@ class SettingsActivity: AppCompatActivity() {
     }
 
     private fun changeListView(textChange: String, changePosition: List<Int>): ListAdapter {
+        val settingsItem: Array<String> = resources.getStringArray(R.array.ru_text_settings)
         val arrayItem: MutableList<String> = mutableListOf()
         for (i in changePosition)
         arrayItem.add("$textChange ${settingsItem[i]}")
@@ -58,7 +59,7 @@ class SettingsActivity: AppCompatActivity() {
             val text = tView.text.toString()
             println(text)
             if (text == "выключен сервер") {
-                GlobalSettings.server.run()
+                GlobalSettings.server.start()
                 GlobalSettings.isServerStart = true
                 listView.adapter = changeListView("включен", listOf(0))
                 return@setOnItemClickListener

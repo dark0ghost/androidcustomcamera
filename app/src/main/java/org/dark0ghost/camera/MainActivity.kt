@@ -129,7 +129,8 @@ open class MainActivity: AppCompatActivity() {
         setContentView(R.layout.activity_main)
         supportActionBar?.hide()
         if (!isAcceptCamera(this@MainActivity)) startCamera()
-        server = ThreadServer(GlobalSettings.trigger,GlobalSettings.ip,GlobalSettings.port,data.logTag){
+        if(!GlobalSettings.isServerStart) {
+            server = ThreadServer(GlobalSettings.trigger, GlobalSettings.ip, GlobalSettings.port, data.logTag) {
                 imageCapture?.takePicture(
                         ImageCapture
                                 .OutputFileOptions
@@ -139,17 +140,18 @@ open class MainActivity: AppCompatActivity() {
                                 .getMainExecutor(this),
                         RamCallBack(data
                                 .logTag
-                        ){
+                        ) {
                             server.isPhotoSave = true
                         }
                 )
-                while(!server.isPhotoSave) sleep(10)
+                while (!server.isPhotoSave) sleep(10)
                 val result = this@MainActivity.imageStorage.intArray.toString()
                 this@MainActivity.imageStorage.intArray.clear()
                 return@ThreadServer result
             }
-        GlobalSettings.server = server
-        if (GlobalSettings.startServer && GlobalSettings.isServerStart){
+            GlobalSettings.server = server
+        }
+        if (GlobalSettings.startServer && !GlobalSettings.isServerStart){
             server.start()
             GlobalSettings.isServerStart = true
         }
