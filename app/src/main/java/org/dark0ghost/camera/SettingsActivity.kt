@@ -12,36 +12,6 @@ class SettingsActivity: AppCompatActivity() {
     private lateinit var changeViewButton: ImageButton
     private lateinit var  listView: ListView
 
-
-
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.setting_layout)
-        changeViewButton = findViewById(R.id.change_view)
-        listView = findViewById(R.id.listView)
-        setListVew()
-        listView.setOnItemClickListener {
-            _, view, _, _ ->
-            val tView: TextView = view as TextView
-            val text = tView.text.toString()
-            if (text == "сервер"){
-                // TODO: make off/on server and save parameter
-                return@setOnItemClickListener
-            }
-            if(text == "дальномер"){
-
-                return@setOnItemClickListener
-            }
-        }
-        changeViewButton.setOnClickListener{
-            val intent = Intent(this, MainActivity::class.java)
-            startActivity(intent)
-        }
-        supportActionBar?.hide()
-    }
-
-
     private fun setListVew(){
         val settingsItem: Array<String> = resources.getStringArray(R.array.ru_text_settings)
         if (GlobalSettings.isServerStart){
@@ -57,5 +27,37 @@ class SettingsActivity: AppCompatActivity() {
         val adapter:ArrayAdapter<String> = ArrayAdapter(this,
                 android.R.layout.simple_list_item_1, settingsItem)
         listView.adapter = adapter
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.setting_layout)
+        changeViewButton = findViewById(R.id.change_view)
+        listView = findViewById(R.id.listView)
+        setListVew()
+        listView.setOnItemClickListener {
+            _, view, _, _ ->
+            val tView: TextView = view as TextView
+            val text = tView.text.toString()
+            if (text == "сервер"){
+                if (!GlobalSettings.isServerStart){
+                    GlobalSettings.server.run()
+                    GlobalSettings.isServerStart = true
+                    return@setOnItemClickListener
+                }
+                GlobalSettings.server.stopServer()
+                GlobalSettings.isServerStart = false
+                return@setOnItemClickListener
+            }
+            if(text == "дальномер"){
+
+                return@setOnItemClickListener
+            }
+        }
+        changeViewButton.setOnClickListener{
+            val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
+        }
+        supportActionBar?.hide()
     }
 }

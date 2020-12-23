@@ -9,4 +9,5 @@ object GlobalSettings {
    var isServerStart: Boolean = false
    var ipServer: String = "$ip:$port"
    var isRangeFinderStart: Boolean = false
+   lateinit var server: ThreadServer
 }
