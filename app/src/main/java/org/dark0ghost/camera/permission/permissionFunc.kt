@@ -1,4 +1,4 @@
-package org.openproject.camera.permission
+package org.dark0ghost.camera.permission
 
 import android.Manifest
 import android.app.Activity

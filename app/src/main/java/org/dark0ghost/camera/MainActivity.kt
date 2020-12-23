@@ -1,4 +1,4 @@
-package org.openproject.camera
+package org.dark0ghost.camera
 
 
 import android.content.Intent
@@ -16,10 +16,10 @@ import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
-import org.openproject.camera.consts.ConstVar
-import org.openproject.camera.implementation.*
-import org.openproject.camera.permission.isAcceptCamera
-import org.openproject.camera.permission.requestCameraPermission
+import org.dark0ghost.camera.consts.ConstVar
+import org.dark0ghost.camera.implementation.*
+import org.dark0ghost.camera.permission.isAcceptCamera
+import org.dark0ghost.camera.permission.requestCameraPermission
 import java.io.File
 import java.lang.Thread.sleep
 import java.text.SimpleDateFormat
@@ -164,6 +164,7 @@ open class MainActivity: AppCompatActivity() {
         }
         outputDirectory = getOutputDirectory()
         cameraExecutor = Executors.newSingleThreadExecutor()
+        Log.d(data.logTag,GlobalSettings.ipServer)
     }
 
     override fun onDestroy() {

@@ -1,4 +1,4 @@
-package org.openproject.camera
+package org.dark0ghost.camera
 
 import org.junit.Test
 

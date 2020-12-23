@@ -1,10 +1,10 @@
-package org.openproject.camera
+package org.dark0ghost.camera
 
 import android.content.Intent
 import android.os.Bundle
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
-import org.openproject.camera.implementation.GlobalSettings
+import org.dark0ghost.camera.implementation.GlobalSettings
 
 
 class SettingsActivity: AppCompatActivity() {
@@ -22,7 +22,7 @@ class SettingsActivity: AppCompatActivity() {
         listView = findViewById(R.id.listView)
         setListVew()
         listView.setOnItemClickListener {
-            parent, view, position, id ->
+            _, view, _, _ ->
             val tView: TextView = view as TextView
             val text = tView.text.toString()
             if (text == "сервер"){
@@ -41,12 +41,7 @@ class SettingsActivity: AppCompatActivity() {
         supportActionBar?.hide()
     }
 
-    /**
-            <ToggleButton
-        android:id="@+id/ram_mode"
-        android:layout_width="70dp"
-        android:layout_height="77dp" />
-     **/
+
     private fun setListVew(){
         val settingsItem: Array<String> = resources.getStringArray(R.array.ru_text_settings)
         if (GlobalSettings.isServerStart){
