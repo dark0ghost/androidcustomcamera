@@ -1,4 +1,4 @@
-package org.openproject.camera.implementation
+package org.dark0ghost.camera.implementation
 
 import android.media.Image
 import java.io.File

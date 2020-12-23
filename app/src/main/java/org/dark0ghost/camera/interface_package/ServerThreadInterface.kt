@@ -1,4 +1,4 @@
-package org.openproject.camera.interface_package
+package org.dark0ghost.camera.interface_package
 
 import java.net.ServerSocket
 

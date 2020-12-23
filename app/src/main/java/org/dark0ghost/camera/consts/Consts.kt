@@ -1,4 +1,4 @@
-package org.openproject.camera.consts
+package org.dark0ghost.camera.consts
 
 import android.Manifest
 

@@ -1,4 +1,4 @@
-package org.openproject.camera.implementation
+package org.dark0ghost.camera.implementation
 
 object GlobalSettings {
    var ramMode: Boolean = false
@@ -9,4 +9,5 @@ object GlobalSettings {
    var isServerStart: Boolean = false
    var ipServer: String = "$ip:$port"
    var isRangeFinderStart: Boolean = false
+   lateinit var server: ThreadServer
 }

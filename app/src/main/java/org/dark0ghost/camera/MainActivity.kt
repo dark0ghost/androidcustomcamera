@@ -1,4 +1,4 @@
-package org.openproject.camera
+package org.dark0ghost.camera
 
 
 import android.content.Intent
@@ -16,10 +16,10 @@ import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
-import org.openproject.camera.consts.ConstVar
-import org.openproject.camera.implementation.*
-import org.openproject.camera.permission.isAcceptCamera
-import org.openproject.camera.permission.requestCameraPermission
+import org.dark0ghost.camera.consts.ConstVar
+import org.dark0ghost.camera.implementation.*
+import org.dark0ghost.camera.permission.isAcceptCamera
+import org.dark0ghost.camera.permission.requestCameraPermission
 import java.io.File
 import java.lang.Thread.sleep
 import java.text.SimpleDateFormat
@@ -129,8 +129,8 @@ open class MainActivity: AppCompatActivity() {
         setContentView(R.layout.activity_main)
         supportActionBar?.hide()
         if (!isAcceptCamera(this@MainActivity)) startCamera()
-        if (GlobalSettings.startServer && GlobalSettings.isServerStart){
-            server = ThreadServer(GlobalSettings.trigger,GlobalSettings.ip,GlobalSettings.port,data.logTag){
+        if(!GlobalSettings.isServerStart) {
+            server = ThreadServer(GlobalSettings.trigger, GlobalSettings.ip, GlobalSettings.port, data.logTag) {
                 imageCapture?.takePicture(
                         ImageCapture
                                 .OutputFileOptions
@@ -140,15 +140,18 @@ open class MainActivity: AppCompatActivity() {
                                 .getMainExecutor(this),
                         RamCallBack(data
                                 .logTag
-                        ){
+                        ) {
                             server.isPhotoSave = true
                         }
                 )
-                while(!server.isPhotoSave) sleep(10)
+                while (!server.isPhotoSave) sleep(10)
                 val result = this@MainActivity.imageStorage.intArray.toString()
                 this@MainActivity.imageStorage.intArray.clear()
                 return@ThreadServer result
             }
+            GlobalSettings.server = server
+        }
+        if (GlobalSettings.startServer && !GlobalSettings.isServerStart){
             server.start()
             GlobalSettings.isServerStart = true
         }
@@ -164,6 +167,7 @@ open class MainActivity: AppCompatActivity() {
         }
         outputDirectory = getOutputDirectory()
         cameraExecutor = Executors.newSingleThreadExecutor()
+        Log.d(data.logTag,GlobalSettings.ipServer)
     }
 
     override fun onDestroy() {

@@ -1,4 +1,4 @@
-package org.openproject.camera.fn
+package org.dark0ghost.camera.fn
 
 import java.lang.Exception
 

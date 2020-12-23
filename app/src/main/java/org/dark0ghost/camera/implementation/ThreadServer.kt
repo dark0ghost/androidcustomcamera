@@ -1,7 +1,7 @@
-package org.openproject.camera.implementation
+package org.dark0ghost.camera.implementation
 import android.util.Log
-import org.openproject.camera.fn.printTrace
-import org.openproject.camera.interface_package.ServerThreadInterface
+import org.dark0ghost.camera.fn.printTrace
+import org.dark0ghost.camera.interface_package.ServerThreadInterface
 import java.io.*
 import java.net.ServerSocket
 import java.net.Socket
