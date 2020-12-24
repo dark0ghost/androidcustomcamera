@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import org.dark0ghost.camera.implementation.GlobalSettings
+import org.dark0ghost.camera.implementation.State
 
 
 class SettingsActivity: AppCompatActivity() {
@@ -12,7 +13,11 @@ class SettingsActivity: AppCompatActivity() {
     private lateinit var changeViewButton: ImageButton
     private lateinit var  listView: ListView
 
+    private fun getStat(stat: Boolean): String {
+        if(stat) return "включен "
+        return "выключен "
 
+    }
     private fun setListVew(){
         val settingsItem: Array<String> = resources.getStringArray(R.array.ru_text_settings)
         val arrayItem: MutableList<String> = mutableListOf()
@@ -34,11 +39,12 @@ class SettingsActivity: AppCompatActivity() {
         listView.adapter = adapter
     }
 
-    private fun changeListView(textChange: String, changePosition: List<Int>): ListAdapter {
+    private fun changeListView(textChange: String, changePosition: List<Int>,nextItem: List<String>): ListAdapter {
         val settingsItem: Array<String> = resources.getStringArray(R.array.ru_text_settings)
         val arrayItem: MutableList<String> = mutableListOf()
         for (i in changePosition)
         arrayItem.add("$textChange ${settingsItem[i]}")
+        arrayItem.addAll(nextItem)
         return ArrayAdapter(
                 this,
                 android.R.layout.simple_list_item_1,
@@ -58,16 +64,20 @@ class SettingsActivity: AppCompatActivity() {
             val tView: TextView = view as TextView
             val text = tView.text.toString()
             println(text)
-            if (text == "выключен сервер") {
-                GlobalSettings.server.start()
+            if (text == "выключен сервер" && !GlobalSettings.isServerStart) {
+                GlobalSettings.server.run()
                 GlobalSettings.isServerStart = true
-                listView.adapter = changeListView("включен", listOf(0))
+                GlobalSettings.startServer = true
+                val nextItem: List<String> = listOf("${getStat(GlobalSettings.isRangeFinderStart)} дальномер")
+                listView.adapter = changeListView(State.ON.str, listOf(0),nextItem )
                 return@setOnItemClickListener
             }
-            if(text == "включен сервер"){
+            if(text == "включен сервер" && GlobalSettings.isServerStart){
                 GlobalSettings.server.stopServer()
                 GlobalSettings.isServerStart = false
-                listView.adapter = changeListView("выключен",listOf(0))
+                GlobalSettings.startServer = false
+                val nextItem: List<String> = listOf("${getStat(GlobalSettings.isRangeFinderStart)} дальномер")
+                listView.adapter = changeListView(State.OFF.str,listOf(0),nextItem)
                 return@setOnItemClickListener
             }
             if(text == "дальномер"){
