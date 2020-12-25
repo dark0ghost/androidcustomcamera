@@ -1,7 +1,9 @@
 package org.dark0ghost.camera
 
 
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Bundle
 import android.os.Process
@@ -38,6 +40,7 @@ open class MainActivity: AppCompatActivity() {
     private  val  imageStorage: ImageStorage = ImageStorage()
     private lateinit var  imageButton: ImageButton
     private lateinit var cameraButton: Button
+    private lateinit var prefs: SharedPreferences
 
 
     private fun takePhoto() {
@@ -121,12 +124,14 @@ open class MainActivity: AppCompatActivity() {
         return if (mediaDir != null && mediaDir.exists()) mediaDir else filesDir
     }
 
+
     override  fun onCreate(savedInstanceState: Bundle?) {
         if (isAcceptCamera(this@MainActivity)) requestCameraPermission(this@MainActivity)
         super.onCreate(savedInstanceState)
         val policy = ThreadPolicy.Builder().permitAll().build()
         StrictMode.setThreadPolicy(policy)
         setContentView(R.layout.activity_main)
+        prefs = getSharedPreferences("settings", Context.MODE_PRIVATE)
         supportActionBar?.hide()
         if (!isAcceptCamera(this@MainActivity)) startCamera()
         if(!GlobalSettings.isServerStart) {

@@ -2,8 +2,8 @@ package org.dark0ghost.camera.consts
 
 import android.Manifest
 
-data class ConstVar(val logTag: String = "CameraLogs",val fileNameFormat: String = "yyyy-MM-dd-HH-mm-ss-SSS",val requestCodePermission: Int = 10,val requiredPermissions: Array<String> = arrayOf(
-    Manifest.permission.CAMERA)) {
+data class ConstVar(var logTag: String = "CameraLogs",var fileNameFormat: String = "yyyy-MM-dd-HH-mm-ss-SSS",val requestCodePermission: Int = 10,val requiredPermissions: Array<String> = arrayOf(
+    Manifest.permission.CAMERA),val ramModeTag: String = "ram_mode_tag", val portTag: String = "port_tag",val startServer: String = "start_server_tag",val triggerTag: String = "trigger_tag",val isServerStartTag: String = "is_server_start_tag",val isRangeFinderStartTag: String = "is_range_finder_start_tag") {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -24,8 +24,8 @@ data class ConstVar(val logTag: String = "CameraLogs",val fileNameFormat: String
             {
             log:$logTag,
             format:$fileNameFormat,
-            code premission:$requestCodePermission
-            required permissions$requiredPermissions
+            code permission:$requestCodePermission,
+            required permissions$requiredPermissions,
             }
         """.trimIndent()
     }

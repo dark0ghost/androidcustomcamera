@@ -1,6 +1,7 @@
 package org.dark0ghost.camera
 
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
@@ -12,6 +13,7 @@ class SettingsActivity: AppCompatActivity() {
 
     private lateinit var changeViewButton: ImageButton
     private lateinit var  listView: ListView
+    private lateinit var prefs: SharedPreferences
 
     private fun getStat(stat: Boolean): String {
         if(stat) return "включен "
@@ -56,6 +58,7 @@ class SettingsActivity: AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.setting_layout)
+        prefs = getSharedPreferences("settings", MODE_PRIVATE)
         changeViewButton = findViewById(R.id.change_view)
         listView = findViewById(R.id.listView)
         setListVew()
