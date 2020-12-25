@@ -3,7 +3,7 @@ package org.dark0ghost.camera.consts
 import android.Manifest
 
 data class ConstVar(var logTag: String = "CameraLogs",var fileNameFormat: String = "yyyy-MM-dd-HH-mm-ss-SSS",val requestCodePermission: Int = 10,val requiredPermissions: Array<String> = arrayOf(
-    Manifest.permission.CAMERA),val ramModeTag: String = "ram_mode_tag", val portTag: String = "port_tag",val startServer: String = "start_server_tag",val triggerTag: String = "trigger_tag",val isServerStartTag: String = "is_server_start_tag",val isRangeFinderStartTag: String = "is_range_finder_start_tag") {
+    Manifest.permission.CAMERA),val ramModeTag: String = "ram_mode_tag", val portTag: String = "port_tag",val startServerTag: String = "start_server_tag",val triggerTag: String = "trigger_tag",val isServerStartTag: String = "is_server_start_tag",val isRangeFinderStartTag: String = "is_range_finder_start_tag") {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
