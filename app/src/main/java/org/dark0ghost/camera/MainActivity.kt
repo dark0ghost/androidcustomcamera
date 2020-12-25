@@ -130,7 +130,7 @@ open class MainActivity: AppCompatActivity() {
         supportActionBar?.hide()
         if (!isAcceptCamera(this@MainActivity)) startCamera()
         if(!GlobalSettings.isServerStart) {
-            server = ThreadServer(GlobalSettings.trigger, GlobalSettings.ip, GlobalSettings.port, data.logTag) {
+            server = ThreadServer(GlobalSettings.trigger, GlobalSettings.port, data.logTag) {
                 imageCapture?.takePicture(
                         ImageCapture
                                 .OutputFileOptions

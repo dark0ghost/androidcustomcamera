@@ -6,7 +6,7 @@ import java.io.*
 import java.net.ServerSocket
 import java.net.Socket
 
-open class ThreadServer(private val trigger: String, private val ip: String, openPort: Int, private val logTag: String, private val callaBack: () -> String): Thread(), ServerThreadInterface {
+open class ThreadServer(private val trigger: String, openPort: Int, private val logTag: String, private val callaBack: () -> String): Thread(), ServerThreadInterface {
     private var serverSocket: ServerSocket = ServerSocket(openPort)
     private lateinit var clientSocket: Socket
     private var bufferSender: PrintWriter? = null

@@ -1,2 +1,3 @@
 rootProject.name = "camera"
 include ':app'
+include ':java'
