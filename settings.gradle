@@ -1,3 +1,6 @@
 rootProject.name = "camera"
 include ':app'
 include ':java'
+include ':opencv'
+include ':java'
+include ':java'
