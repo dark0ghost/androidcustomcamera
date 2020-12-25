@@ -1,9 +1,12 @@
 package org.dark0ghost.camera
 
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import org.dark0ghost.camera.consts.ConstVar
+import org.dark0ghost.camera.fn.setNewPref
 import org.dark0ghost.camera.implementation.GlobalSettings
 import org.dark0ghost.camera.implementation.State
 
@@ -12,6 +15,8 @@ class SettingsActivity: AppCompatActivity() {
 
     private lateinit var changeViewButton: ImageButton
     private lateinit var  listView: ListView
+    private lateinit var prefs: SharedPreferences
+    private val data = ConstVar()
 
     private fun getStat(stat: Boolean): String {
         if(stat) return "включен "
@@ -56,6 +61,7 @@ class SettingsActivity: AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.setting_layout)
+        prefs = getSharedPreferences("settings", MODE_PRIVATE)
         changeViewButton = findViewById(R.id.change_view)
         listView = findViewById(R.id.listView)
         setListVew()
@@ -65,7 +71,7 @@ class SettingsActivity: AppCompatActivity() {
             val text = tView.text.toString()
             println(text)
             if (text == "выключен сервер" && !GlobalSettings.isServerStart) {
-                GlobalSettings.server.run()
+                GlobalSettings.server.start()
                 GlobalSettings.isServerStart = true
                 GlobalSettings.startServer = true
                 val nextItem: List<String> = listOf("${getStat(GlobalSettings.isRangeFinderStart)} дальномер")
@@ -90,5 +96,9 @@ class SettingsActivity: AppCompatActivity() {
             startActivity(intent)
         }
         supportActionBar?.hide()
+    }
+    override fun onPause() {
+        super.onPause()
+        setNewPref(prefs, data)
     }
 }

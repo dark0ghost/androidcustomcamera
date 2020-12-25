@@ -7,7 +7,6 @@ android {
     compileSdkVersion 30
     buildToolsVersion "30.0.3"
 
-
     defaultConfig {
         applicationId "org.openproject.camera"
         minSdkVersion 28
@@ -36,11 +35,7 @@ android {
     packagingOptions {
         exclude 'META-INF/*'
     }
-
-  
-
 }
-
 
 
 dependencies {
@@ -58,6 +53,7 @@ dependencies {
     implementation "androidx.camera:camera-camera2:1.0.0-rc01"
     implementation "androidx.camera:camera-lifecycle:1.0.0-rc01"
     implementation "androidx.camera:camera-view:1.0.0-alpha20"
+
 
     testImplementation 'junit:junit:4.13.1'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
