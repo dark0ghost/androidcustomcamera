@@ -21,5 +21,6 @@ jobs:
       run: chmod +x gradlew
     - name: Build with Gradle
       run: ./gradlew build
-    - name: Android CI debug
-      uses: yuanjinsongquyi/android_build_debug@v1
+    - name: Android Github Action
+      uses: Vukan-Markovic/Github-Android-Action@1.2
+      
