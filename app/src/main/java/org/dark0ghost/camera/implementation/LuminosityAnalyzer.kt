@@ -9,10 +9,10 @@ typealias LumaListener = (luma: Double) -> Unit
 class LuminosityAnalyzer(private val listener: LumaListener) : ImageAnalysis.Analyzer {
 
     private fun ByteBuffer.toByteArray(): ByteArray {
-        rewind()    // Rewind the buffer to zero
+        rewind()
         val data = ByteArray(remaining())
-        get(data)   // Copy the buffer into a byte array
-        return data // Return the byte array
+        get(data)
+        return data
     }
 
     override fun analyze(image: ImageProxy) {
@@ -23,9 +23,7 @@ class LuminosityAnalyzer(private val listener: LumaListener) : ImageAnalysis.Ana
             it.toInt() and 0xFF
         }
         val luma = pixels.average()
-
         listener(luma)
-
         image.close()
     }
 }
