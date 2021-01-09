@@ -11,4 +11,7 @@ In this project a camera is implemented using the library **jetpack compose**. T
 ram - 100-120 Mb
  
 ## interface
+# main
 ![](https://github.com/dark0ghost/androidcustomcamera/blob/master/static/app.png)
+# settings
+![](https://github.com/dark0ghost/androidcustomcamera/blob/master/static/settings.png)
