@@ -9,6 +9,11 @@ In this project a camera is implemented using the library **jetpack compose**. T
 
 ## resource consumption 
 ram - 100-120 Mb
+app size - 9 Mb
+
+## Android support 
+min Android 9 Pie (API level 29);
+max Android 11 (API level 30);
  
 ## interface
 # main
