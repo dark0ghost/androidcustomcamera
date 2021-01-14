@@ -8,11 +8,11 @@
 In this project a camera is implemented using the library **jetpack compose**. The application also implements a tsp server that can send photos by sending bits. The project is fully implemented at Kotlin
 
 ## resource consumption 
-ram - 100-120 Mb
+ram - 100-120 Mb<br>
 app size - 9 Mb
 
 ## Android support 
-min Android 9 Pie (API level 29);
+min Android 9 Pie (API level 29);<br>
 max Android 11 (API level 30);
  
 ## interface
