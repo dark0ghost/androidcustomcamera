@@ -53,7 +53,7 @@ open class ThreadServer(private val trigger: String, openPort: Int, private val 
         get() = serverSocket
 
 
-    override fun stopServer(): Unit {
+    override fun stopServer() {
         interrupt()
         this.close()
     }

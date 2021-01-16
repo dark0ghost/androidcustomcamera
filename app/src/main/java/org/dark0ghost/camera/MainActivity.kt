@@ -12,7 +12,6 @@ import android.os.StrictMode.ThreadPolicy
 import android.util.Log
 import android.widget.Button
 import android.widget.ImageButton
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
@@ -33,10 +32,11 @@ import java.util.concurrent.Executors
 
 
 open class MainActivity: AppCompatActivity() {
+
     private var imageCapture: ImageCapture? = null
     private lateinit var outputDirectory: File
     private lateinit var cameraExecutor: ExecutorService
-    private val data = ConstVar()
+    private val data: ConstVar = ConstVar()
     private lateinit var previews: PreviewView
     private lateinit var server: ThreadServer
     private val imageStorage: ImageStorage = ImageStorage()
@@ -66,13 +66,15 @@ open class MainActivity: AppCompatActivity() {
                         override fun onImageSaved(output: ImageCapture.OutputFileResults) {
                             val savedUri = Uri.fromFile(photoFile)
                             val msg = "Photo capture succeeded: $savedUri"
-                            Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
+                           // Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
                             Log.d(data.logTag, msg)
                         }
                     }
             )
-        } else {
-            imageCapture?.takePicture(
+            return
+        }
+
+        imageCapture?.takePicture(
                     ImageCapture
                             .OutputFileOptions
                             .Builder(imageStorage)
@@ -83,12 +85,12 @@ open class MainActivity: AppCompatActivity() {
                             .logTag
                     )
             )
-        }
+
     }
 
     private fun startCamera() {
-        val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
-        cameraProviderFuture.addListener({
+            val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
+            cameraProviderFuture.addListener({
             val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
             val preview = Preview.Builder()
                     .build()
@@ -113,8 +115,7 @@ open class MainActivity: AppCompatActivity() {
                 )
             } catch (exc: Exception) {
                 Log.e(data.logTag, "Use case binding failed", exc)
-            }
-        }, ContextCompat.getMainExecutor(this))
+            } }, ContextCompat.getMainExecutor(this))
     }
 
     private fun getOutputDirectory(): File {
@@ -168,6 +169,7 @@ open class MainActivity: AppCompatActivity() {
         previews = findViewById(R.id.viewFinder)
         cameraButton.setOnClickListener {
             this.takePhoto()
+            it.animation.s
         }
         imageButton.setOnClickListener {
             val intent = Intent(this, SettingsActivity::class.java)
