@@ -10,6 +10,8 @@ import android.os.Process
 import android.os.StrictMode
 import android.os.StrictMode.ThreadPolicy
 import android.util.Log
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
 import android.widget.Button
 import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
@@ -17,6 +19,8 @@ import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.DrawableCompat.applyTheme
+import androidx.core.graphics.drawable.DrawableCompat.setHotspot
 import org.dark0ghost.camera.consts.ConstVar
 import org.dark0ghost.camera.fn.setGlobalSettingsFromContext
 import org.dark0ghost.camera.fn.setNewPref
@@ -43,7 +47,6 @@ open class MainActivity: AppCompatActivity() {
     private lateinit var imageButton: ImageButton
     private lateinit var cameraButton: Button
     private lateinit var prefs: SharedPreferences
-
 
     private fun takePhoto() {
         if (!GlobalSettings.ramMode) {
@@ -168,8 +171,11 @@ open class MainActivity: AppCompatActivity() {
         imageButton = findViewById(R.id.settings_button)
         previews = findViewById(R.id.viewFinder)
         cameraButton.setOnClickListener {
+            val shake: Animation = AnimationUtils.loadAnimation(this, R.anim.shake)
             this.takePhoto()
-            it.animation.s
+            it.startAnimation(shake)
+
+
         }
         imageButton.setOnClickListener {
             val intent = Intent(this, SettingsActivity::class.java)
