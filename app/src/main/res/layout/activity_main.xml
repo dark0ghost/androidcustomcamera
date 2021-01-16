@@ -14,7 +14,8 @@
       android:layout_height="116dp"
       android:layout_gravity="center"
       android:layout_marginTop="210dp"
-      android:background="@drawable/roundedbutton"/>
+      android:background="@drawable/rounded_button"
+      />
 
   <ImageButton
       android:id="@+id/settings_button"

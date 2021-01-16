@@ -10,14 +10,17 @@ import android.os.Process
 import android.os.StrictMode
 import android.os.StrictMode.ThreadPolicy
 import android.util.Log
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
 import android.widget.Button
 import android.widget.ImageButton
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.DrawableCompat.applyTheme
+import androidx.core.graphics.drawable.DrawableCompat.setHotspot
 import org.dark0ghost.camera.consts.ConstVar
 import org.dark0ghost.camera.fn.setGlobalSettingsFromContext
 import org.dark0ghost.camera.fn.setNewPref
@@ -33,17 +36,17 @@ import java.util.concurrent.Executors
 
 
 open class MainActivity: AppCompatActivity() {
+
     private var imageCapture: ImageCapture? = null
     private lateinit var outputDirectory: File
     private lateinit var cameraExecutor: ExecutorService
-    private val data = ConstVar()
+    private val data: ConstVar = ConstVar()
     private lateinit var previews: PreviewView
     private lateinit var server: ThreadServer
     private val imageStorage: ImageStorage = ImageStorage()
     private lateinit var imageButton: ImageButton
     private lateinit var cameraButton: Button
     private lateinit var prefs: SharedPreferences
-
 
     private fun takePhoto() {
         if (!GlobalSettings.ramMode) {
@@ -66,13 +69,15 @@ open class MainActivity: AppCompatActivity() {
                         override fun onImageSaved(output: ImageCapture.OutputFileResults) {
                             val savedUri = Uri.fromFile(photoFile)
                             val msg = "Photo capture succeeded: $savedUri"
-                            Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
+                           // Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
                             Log.d(data.logTag, msg)
                         }
                     }
             )
-        } else {
-            imageCapture?.takePicture(
+            return
+        }
+
+        imageCapture?.takePicture(
                     ImageCapture
                             .OutputFileOptions
                             .Builder(imageStorage)
@@ -83,12 +88,12 @@ open class MainActivity: AppCompatActivity() {
                             .logTag
                     )
             )
-        }
+
     }
 
     private fun startCamera() {
-        val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
-        cameraProviderFuture.addListener({
+            val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
+            cameraProviderFuture.addListener({
             val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
             val preview = Preview.Builder()
                     .build()
@@ -113,8 +118,7 @@ open class MainActivity: AppCompatActivity() {
                 )
             } catch (exc: Exception) {
                 Log.e(data.logTag, "Use case binding failed", exc)
-            }
-        }, ContextCompat.getMainExecutor(this))
+            } }, ContextCompat.getMainExecutor(this))
     }
 
     private fun getOutputDirectory(): File {
@@ -167,7 +171,11 @@ open class MainActivity: AppCompatActivity() {
         imageButton = findViewById(R.id.settings_button)
         previews = findViewById(R.id.viewFinder)
         cameraButton.setOnClickListener {
+            val shake: Animation = AnimationUtils.loadAnimation(this, R.anim.shake)
             this.takePhoto()
+            it.startAnimation(shake)
+
+
         }
         imageButton.setOnClickListener {
             val intent = Intent(this, SettingsActivity::class.java)
