@@ -174,8 +174,6 @@ open class MainActivity: AppCompatActivity() {
             val shake: Animation = AnimationUtils.loadAnimation(this, R.anim.shake)
             this.takePhoto()
             it.startAnimation(shake)
-
-
         }
         imageButton.setOnClickListener {
             val intent = Intent(this, SettingsActivity::class.java)
