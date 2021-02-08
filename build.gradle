@@ -6,7 +6,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.0.0-alpha04'
+        classpath 'com.android.tools.build:gradle:7.0.0-alpha05'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
@@ -16,21 +16,6 @@ allprojects {
         google()
         jcenter()
         mavenCentral()
-        maven {
-            url "https://dl.bintray.com/kotlin/ktor"
-        }
-        maven {
-            url "https://kotlin.bintray.com/kotlinx"
-        }
-        maven {
-            url "https://oss.sonatype.org/content/repositories/snapshots/"
-        }
-        maven {
-            url "https://oss.jfrog.org/oss-snapshot-local"
-        }
-        maven {
-            url 'http://maven2.javacv.googlecode.com/git/'
-        }
     }
 
 }
