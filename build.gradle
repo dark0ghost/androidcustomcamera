@@ -17,15 +17,6 @@ allprojects {
         jcenter()
         mavenCentral()
         maven {
-            url "https://dl.bintray.com/kotlin/ktor"
-        }
-        maven {
-            url "https://kotlin.bintray.com/kotlinx"
-        }
-        maven {
-            url "https://oss.sonatype.org/content/repositories/snapshots/"
-        }
-        maven {
             url "https://oss.jfrog.org/oss-snapshot-local"
         }
         maven {
