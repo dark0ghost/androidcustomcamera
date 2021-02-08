@@ -16,12 +16,6 @@ allprojects {
         google()
         jcenter()
         mavenCentral()
-        maven {
-            url "https://oss.jfrog.org/oss-snapshot-local"
-        }
-        maven {
-            url 'http://maven2.javacv.googlecode.com/git/'
-        }
     }
 
 }
