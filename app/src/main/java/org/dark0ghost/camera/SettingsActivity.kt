@@ -14,8 +14,13 @@ import org.dark0ghost.camera.implementation.State
 class SettingsActivity: AppCompatActivity() {
 
     private lateinit var changeViewButton: ImageButton
+
     private lateinit var  listView: ListView
+
     private lateinit var prefs: SharedPreferences
+
+    private lateinit var editText: EditText
+
     private val data = ConstVar()
 
     private fun getStat(stat: Boolean): String {
@@ -65,6 +70,8 @@ class SettingsActivity: AppCompatActivity() {
         changeViewButton = findViewById(R.id.change_view)
         listView = findViewById(R.id.listView)
         setListVew()
+        editText = findViewById(R.id.ip)
+        editText.hint = GlobalSettings.ip
         listView.setOnItemClickListener {
             _, view, _, _ ->
             val tView: TextView = view as TextView

@@ -7,11 +7,14 @@ import java.net.ServerSocket
 import java.net.Socket
 
 open class ThreadServer(private val trigger: String, openPort: Int, private val logTag: String, private val callaBack: () -> String): Thread(), ServerThreadInterface {
+
     private var serverSocket: ServerSocket = ServerSocket(openPort)
+
     private lateinit var clientSocket: Socket
+
     private var bufferSender: PrintWriter? = null
+
     private fun isCommand(message: String): Boolean = message == trigger
-    open var isPhotoSave: Boolean = false
 
     private fun runServer(){
         GlobalSettings.isServerStart = true
@@ -49,6 +52,12 @@ open class ThreadServer(private val trigger: String, openPort: Int, private val 
             }
         }
 
+    init{
+        GlobalSettings.isPortBind = true
+    }
+
+    open var isPhotoSave: Boolean = false
+
     override val socket
         get() = serverSocket
 
@@ -65,9 +74,10 @@ open class ThreadServer(private val trigger: String, openPort: Int, private val 
     }
 
     override fun close() {
-       if(!serverSocket.isClosed){
+        if(!serverSocket.isClosed){
            serverSocket.close()
-       }
+        }
+        GlobalSettings.isPortBind = false
         GlobalSettings.isServerStart = false
         Log.e(logTag, "Server is end work")
     }
