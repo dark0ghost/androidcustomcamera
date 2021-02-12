@@ -141,7 +141,7 @@ open class MainActivity: AppCompatActivity() {
         setGlobalSettingsFromContext(prefs, data)
         supportActionBar?.hide()
         if (!isAcceptCamera(this@MainActivity)) startCamera()
-        if (!GlobalSettings.isServerStart) {
+        if (!GlobalSettings.isServerStart && !GlobalSettings.isPortBind) {
             server = ThreadServer(GlobalSettings.trigger, GlobalSettings.port, data.logTag) {
                 imageCapture?.takePicture(
                         ImageCapture
