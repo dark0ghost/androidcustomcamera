@@ -3,6 +3,8 @@ package org.dark0ghost.camera
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.util.Log
+import android.view.inputmethod.EditorInfo
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import org.dark0ghost.camera.consts.ConstVar
@@ -98,10 +100,22 @@ class SettingsActivity: AppCompatActivity() {
                 return@setOnItemClickListener
             }
         }
+
         changeViewButton.setOnClickListener{
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
         }
+
+        editText.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_SEND) {
+                GlobalSettings.ip = editText.text.toString()
+                Log.d("editor",editText.text.toString())
+                return@setOnEditorActionListener true
+            }
+            return@setOnEditorActionListener false
+        }
+
+
         supportActionBar?.hide()
     }
     override fun onPause() {
