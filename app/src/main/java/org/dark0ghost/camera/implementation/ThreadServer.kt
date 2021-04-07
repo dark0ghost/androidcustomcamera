@@ -14,7 +14,11 @@ open class ThreadServer(private val trigger: String, openPort: Int, private val 
 
     private var bufferSender: PrintWriter? = null
 
-    private fun isCommand(message: String): Boolean = message == trigger
+    private fun isCommand(message: String): Boolean {
+        println(message)
+        println(trigger)
+        return message.replace("\n","") == trigger
+    }
 
     private fun runServer(){
         GlobalSettings.isServerStart = true
