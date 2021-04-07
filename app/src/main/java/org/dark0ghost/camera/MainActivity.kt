@@ -19,8 +19,6 @@ import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
-import androidx.core.graphics.drawable.DrawableCompat.applyTheme
-import androidx.core.graphics.drawable.DrawableCompat.setHotspot
 import org.dark0ghost.camera.consts.ConstVar
 import org.dark0ghost.camera.fn.setGlobalSettingsFromContext
 import org.dark0ghost.camera.fn.setNewPref
@@ -38,12 +36,12 @@ import java.util.concurrent.Executors
 open class MainActivity: AppCompatActivity() {
 
     private var imageCapture: ImageCapture? = null
+    private val imageStorage: ImageStorage = ImageStorage()
     private lateinit var outputDirectory: File
     private lateinit var cameraExecutor: ExecutorService
     private val data: ConstVar = ConstVar()
     private lateinit var previews: PreviewView
     private lateinit var server: ThreadServer
-    private val imageStorage: ImageStorage = ImageStorage()
     private lateinit var imageButton: ImageButton
     private lateinit var cameraButton: Button
     private lateinit var prefs: SharedPreferences
@@ -112,7 +110,7 @@ open class MainActivity: AppCompatActivity() {
                     }
             val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
             try {
-               // cameraProvider.unbindAll()
+                cameraProvider.unbindAll()
                 cameraProvider.bindToLifecycle(
                         this, cameraSelector, preview, imageCapture, imageAnalyzer
                 )
@@ -143,23 +141,23 @@ open class MainActivity: AppCompatActivity() {
         if (!isAcceptCamera(this@MainActivity)) startCamera()
         if (!GlobalSettings.isServerStart && !GlobalSettings.isPortBind) {
             server = ThreadServer(GlobalSettings.trigger, GlobalSettings.port, data.logTag) {
+                val imageStorages: ImageStorage = ImageStorage()
                 imageCapture?.takePicture(
-                        ImageCapture
-                                .OutputFileOptions
-                                .Builder(imageStorage)
-                                .build(),
-                        ContextCompat
-                                .getMainExecutor(this),
-                        RamCallBack(data
-                                .logTag
-                        ) {
-                            server.isPhotoSave = true
-                        }
+                    ImageCapture
+                        .OutputFileOptions
+                        .Builder(imageStorages)
+                        .build(),
+                    ContextCompat
+                        .getMainExecutor(this),
+                    RamCallBack(
+                        data
+                            .logTag
+                    ) {
+                        server.isPhotoSave = true
+                    }
                 )
                 while (!server.isPhotoSave) sleep(10)
-                val result = this@MainActivity.imageStorage.intArray.toString()
-                this@MainActivity.imageStorage.intArray.clear()
-                return@ThreadServer result
+                return@ThreadServer imageStorages.intArray.toString()
             }
             GlobalSettings.server = server
         }
@@ -206,7 +204,6 @@ open class MainActivity: AppCompatActivity() {
 
     override fun onLowMemory() {
         Process.killProcess(Process.myPid())
-        imageStorage.close()
         super.onLowMemory()
     }
 
