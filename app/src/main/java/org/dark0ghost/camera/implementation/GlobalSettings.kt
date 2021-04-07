@@ -9,7 +9,7 @@ object GlobalSettings {
 
    var startServer: Boolean = true
 
-   var trigger: String = "send photo"
+   var trigger: String = "send"
 
    var isServerStart: Boolean = false
 
