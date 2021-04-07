@@ -112,7 +112,7 @@ open class MainActivity: AppCompatActivity() {
                     }
             val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
             try {
-                cameraProvider.unbindAll()
+               // cameraProvider.unbindAll()
                 cameraProvider.bindToLifecycle(
                         this, cameraSelector, preview, imageCapture, imageAnalyzer
                 )
