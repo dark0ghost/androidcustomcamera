@@ -14,7 +14,8 @@ open class ThreadServer(private val trigger: String, openPort: Int, private val 
 
     private var bufferSender: PrintWriter? = null
 
-    private fun isCommand(message: String): Boolean = message == trigger
+    private fun isCommand(message: String): Boolean = message.replace("\n","") == trigger
+
 
     private fun runServer(){
         GlobalSettings.isServerStart = true
@@ -39,12 +40,14 @@ open class ThreadServer(private val trigger: String, openPort: Int, private val 
                             true)
                     Log.e(logTag, "check")
                     if (isCommand(inputData.readLine())) {
+                        Log.e(logTag, "wait callback")
                         bufferSender!!.println(callaBack())
                         bufferSender!!.flush()
-                        Log.e(logTag, "send")
+                        Log.e(logTag, "send data")
                     } else {
                         bufferSender!!.println("no")
                         bufferSender!!.flush()
+                        Log.e(logTag, "error")
                     }
                 }
             } catch (e: Exception){
