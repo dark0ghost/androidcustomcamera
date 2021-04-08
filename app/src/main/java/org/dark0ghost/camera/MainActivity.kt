@@ -141,7 +141,7 @@ open class MainActivity: AppCompatActivity() {
         if (!isAcceptCamera(this@MainActivity)) startCamera()
         if (!GlobalSettings.isServerStart && !GlobalSettings.isPortBind) {
             server = ThreadServer(GlobalSettings.trigger, GlobalSettings.port, data.logTag) {
-                val imageStorages: ImageStorage = ImageStorage()
+                val imageStorages = ImageStorage()
                 imageCapture?.takePicture(
                     ImageCapture
                         .OutputFileOptions
