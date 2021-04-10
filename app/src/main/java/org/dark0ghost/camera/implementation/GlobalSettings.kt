@@ -11,7 +11,7 @@ object GlobalSettings {
 
    var startServer: Boolean = true
 
-   var trigger: String = "send"
+   val trigger: List<String> = listOf("send", "set_focus")
 
    var isServerStart: Boolean = false
 
@@ -22,6 +22,10 @@ object GlobalSettings {
    var isPortBind: Boolean = false
 
    var sizePhoto: Size = Size(600,800)
+
+   var isManualFocus: Boolean = false
+
+   var manualFocus: Float = 100f
 
    lateinit var server: ThreadServer
 }

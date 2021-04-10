@@ -1,9 +1,9 @@
 package org.dark0ghost.camera
 
-
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.hardware.camera2.CameraMetadata
 import android.hardware.camera2.CaptureRequest
 import android.net.Uri
 import android.os.Bundle
@@ -11,7 +11,6 @@ import android.os.Process
 import android.os.StrictMode
 import android.os.StrictMode.ThreadPolicy
 import android.util.Log
-import android.util.Size
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.Button
@@ -34,10 +33,6 @@ import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
-import android.hardware.camera2.CameraMetadata
-
-
-
 
 
 open class MainActivity: AppCompatActivity() {
@@ -74,9 +69,7 @@ open class MainActivity: AppCompatActivity() {
 
                         override fun onImageSaved(output: ImageCapture.OutputFileResults) {
                             val savedUri = Uri.fromFile(photoFile)
-                            val msg = "Photo capture succeeded: $savedUri"
-                           // Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
-                            Log.d(data.logTag, msg)
+                            Log.d(data.logTag, "Photo capture succeeded: $savedUri")
                         }
                     }
             )
@@ -97,11 +90,7 @@ open class MainActivity: AppCompatActivity() {
 
     }
 
-    private fun getMinimumFocusDistance(){
-        //return cameraInfo.
-    }
-
-    private fun setFocusDistance(builder: ExtendableBuilder<ImageAnalysis.Builder>, distance: Float) {
+    private fun setFocusDistance(builder: ImageAnalysis.Builder, distance: Float) {
         val extender: Camera2Interop.Extender<*> = Camera2Interop.Extender(builder)
         extender.setCaptureRequestOption(
             CaptureRequest.CONTROL_AF_MODE,
@@ -110,6 +99,14 @@ open class MainActivity: AppCompatActivity() {
         extender.setCaptureRequestOption(CaptureRequest.LENS_FOCUS_DISTANCE, distance)
     }
 
+    private fun getOutputDirectory(): File {
+        val mediaDir = externalMediaDirs.firstOrNull()?.let {
+            File(it, "camera").apply {
+                mkdirs()
+            }
+        }
+        return if (mediaDir != null && mediaDir.exists()) mediaDir else filesDir
+    }
 
     private fun startCamera() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
@@ -125,6 +122,8 @@ open class MainActivity: AppCompatActivity() {
                 .setTargetResolution(GlobalSettings.sizePhoto)
                 .build()
             val imageAnalyzerBuilder = ImageAnalysis.Builder()
+            if(GlobalSettings.isManualFocus)
+              setFocusDistance(imageAnalyzerBuilder, GlobalSettings.manualFocus)
             val imageAnalyzer = imageAnalyzerBuilder.build()
                 .also {
                     it.setAnalyzer(cameraExecutor, LuminosityAnalyzer { luma ->
@@ -143,16 +142,6 @@ open class MainActivity: AppCompatActivity() {
             }
         }, ContextCompat.getMainExecutor(this))
     }
-
-    private fun getOutputDirectory(): File {
-        val mediaDir = externalMediaDirs.firstOrNull()?.let {
-            File(it, "camera").apply {
-                mkdirs()
-            }
-        }
-        return if (mediaDir != null && mediaDir.exists()) mediaDir else filesDir
-    }
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         if (isAcceptCamera(this@MainActivity)) requestCameraPermission(this@MainActivity)
