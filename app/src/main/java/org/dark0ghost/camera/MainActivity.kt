@@ -34,6 +34,10 @@ import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import android.hardware.camera2.CameraMetadata
+
+
+
 
 
 open class MainActivity: AppCompatActivity() {
@@ -93,6 +97,19 @@ open class MainActivity: AppCompatActivity() {
 
     }
 
+    private fun getMinimumFocusDistance(){
+        //return cameraInfo.
+    }
+
+    private fun setFocusDistance(builder: ExtendableBuilder<ImageAnalysis.Builder>, distance: Float) {
+        val extender: Camera2Interop.Extender<*> = Camera2Interop.Extender(builder)
+        extender.setCaptureRequestOption(
+            CaptureRequest.CONTROL_AF_MODE,
+            CameraMetadata.CONTROL_AF_MODE_OFF
+        )
+        extender.setCaptureRequestOption(CaptureRequest.LENS_FOCUS_DISTANCE, distance)
+    }
+
 
     private fun startCamera() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
@@ -108,7 +125,6 @@ open class MainActivity: AppCompatActivity() {
                 .setTargetResolution(GlobalSettings.sizePhoto)
                 .build()
             val imageAnalyzerBuilder = ImageAnalysis.Builder()
-
             val imageAnalyzer = imageAnalyzerBuilder.build()
                 .also {
                     it.setAnalyzer(cameraExecutor, LuminosityAnalyzer { luma ->
