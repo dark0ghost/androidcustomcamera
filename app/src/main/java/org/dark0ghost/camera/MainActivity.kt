@@ -4,17 +4,20 @@ package org.dark0ghost.camera
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.hardware.camera2.CaptureRequest
 import android.net.Uri
 import android.os.Bundle
 import android.os.Process
 import android.os.StrictMode
 import android.os.StrictMode.ThreadPolicy
 import android.util.Log
+import android.util.Size
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.Button
 import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
+import androidx.camera.camera2.interop.Camera2Interop
 import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
@@ -37,14 +40,15 @@ open class MainActivity: AppCompatActivity() {
 
     private var imageCapture: ImageCapture? = null
     private val imageStorage: ImageStorage = ImageStorage()
+    private val data: ConstVar = ConstVar()
     private lateinit var outputDirectory: File
     private lateinit var cameraExecutor: ExecutorService
-    private val data: ConstVar = ConstVar()
     private lateinit var previews: PreviewView
     private lateinit var server: ThreadServer
     private lateinit var imageButton: ImageButton
     private lateinit var cameraButton: Button
     private lateinit var prefs: SharedPreferences
+    private lateinit var cameraInfo: CameraInfo
 
     private fun takePhoto() {
         if (!GlobalSettings.ramMode) {
@@ -82,41 +86,46 @@ open class MainActivity: AppCompatActivity() {
                             .build(),
                     ContextCompat
                             .getMainExecutor(this),
-                    RamCallBack(data
-                            .logTag
+                    RamCallBack(
+                        data.logTag
                     )
             )
 
     }
 
+
     private fun startCamera() {
-            val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
-            cameraProviderFuture.addListener({
+        val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
+        cameraProviderFuture.addListener({
             val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
             val preview = Preview.Builder()
-                    .build()
-                    .also {
-                        it.setSurfaceProvider(previews.surfaceProvider)
-                    }
+                .build()
+                .also {
+                    it.setSurfaceProvider(previews.surfaceProvider)
+                }
             imageCapture = ImageCapture
-                    .Builder()
-                    .build()
-            val imageAnalyzer = ImageAnalysis.Builder()
-                    .build()
-                    .also {
-                        it.setAnalyzer(cameraExecutor, LuminosityAnalyzer { luma ->
-                            Log.d(data.logTag, "Average luminosity: $luma")
-                        })
-                    }
+                .Builder()
+                .setTargetResolution(GlobalSettings.sizePhoto)
+                .build()
+            val imageAnalyzerBuilder = ImageAnalysis.Builder()
+
+            val imageAnalyzer = imageAnalyzerBuilder.build()
+                .also {
+                    it.setAnalyzer(cameraExecutor, LuminosityAnalyzer { luma ->
+                        Log.d(data.logTag, "Average luminosity: $luma")
+                    })
+                }
             val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
             try {
                 cameraProvider.unbindAll()
-                cameraProvider.bindToLifecycle(
-                        this, cameraSelector, preview, imageCapture, imageAnalyzer
+                val camera = cameraProvider.bindToLifecycle(
+                    this, cameraSelector, preview, imageCapture, imageAnalyzer
                 )
+                cameraInfo = camera.cameraInfo
             } catch (exc: Exception) {
                 Log.e(data.logTag, "Use case binding failed", exc)
-            } }, ContextCompat.getMainExecutor(this))
+            }
+        }, ContextCompat.getMainExecutor(this))
     }
 
     private fun getOutputDirectory(): File {
@@ -148,7 +157,7 @@ open class MainActivity: AppCompatActivity() {
                         .Builder(imageStorages)
                         .build(),
                     ContextCompat
-                        .getMainExecutor(this),
+                        .getMainExecutor(this@MainActivity),
                     RamCallBack(
                         data
                             .logTag

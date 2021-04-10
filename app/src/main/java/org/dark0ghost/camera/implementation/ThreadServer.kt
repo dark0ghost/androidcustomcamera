@@ -41,9 +41,10 @@ open class ThreadServer(private val trigger: String, openPort: Int, private val 
                     Log.e(logTag, "check")
                     if (isCommand(inputData.readLine())) {
                         Log.e(logTag, "wait callback")
-                        bufferSender!!.println(callaBack())
+                        val res = callaBack()
+                        bufferSender!!.println(res)
+                        Log.e(logTag, "send data $res")
                         bufferSender!!.flush()
-                        Log.e(logTag, "send data")
                     } else {
                         bufferSender!!.println("no")
                         bufferSender!!.flush()

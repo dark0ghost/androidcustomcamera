@@ -1,5 +1,7 @@
 package org.dark0ghost.camera.implementation
 
+import android.util.Size
+
 object GlobalSettings {
    var ramMode: Boolean = false
 
@@ -18,6 +20,8 @@ object GlobalSettings {
    var isRangeFinderStart: Boolean = false
 
    var isPortBind: Boolean = false
+
+   var sizePhoto: Size = Size(600,800)
 
    lateinit var server: ThreadServer
 }
