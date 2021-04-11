@@ -154,7 +154,7 @@ open class MainActivity: AppCompatActivity() {
         supportActionBar?.hide()
         if (!isAcceptCamera(this@MainActivity)) startCamera()
         if (!GlobalSettings.isServerStart && !GlobalSettings.isPortBind) {
-            val startCamFunc: () -> Unit = { this.startCamera() }
+            val startCamFunc: () -> Unit = { startCamera() }
             server = ThreadServer(GlobalSettings.trigger, GlobalSettings.port, data.logTag, startCamFunc) {
                 val imageStorages = ImageStorage()
                 imageCapture?.takePicture(
@@ -185,7 +185,7 @@ open class MainActivity: AppCompatActivity() {
         previews = findViewById(R.id.viewFinder)
         cameraButton.setOnClickListener {
             val shake: Animation = AnimationUtils.loadAnimation(this, R.anim.shake)
-            this.takePhoto()
+            takePhoto()
             it.startAnimation(shake)
         }
         imageButton.setOnClickListener {
