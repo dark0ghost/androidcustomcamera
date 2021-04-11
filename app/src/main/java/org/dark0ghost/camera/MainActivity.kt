@@ -1,9 +1,10 @@
 package org.dark0ghost.camera
 
-
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.hardware.camera2.CameraMetadata
+import android.hardware.camera2.CaptureRequest
 import android.net.Uri
 import android.os.Bundle
 import android.os.Process
@@ -15,6 +16,7 @@ import android.view.animation.AnimationUtils
 import android.widget.Button
 import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
+import androidx.camera.camera2.interop.Camera2Interop
 import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
@@ -37,14 +39,15 @@ open class MainActivity: AppCompatActivity() {
 
     private var imageCapture: ImageCapture? = null
     private val imageStorage: ImageStorage = ImageStorage()
+    private val data: ConstVar = ConstVar()
     private lateinit var outputDirectory: File
     private lateinit var cameraExecutor: ExecutorService
-    private val data: ConstVar = ConstVar()
     private lateinit var previews: PreviewView
     private lateinit var server: ThreadServer
     private lateinit var imageButton: ImageButton
     private lateinit var cameraButton: Button
     private lateinit var prefs: SharedPreferences
+    private lateinit var cameraInfo: CameraInfo
 
     private fun takePhoto() {
         if (!GlobalSettings.ramMode) {
@@ -66,9 +69,7 @@ open class MainActivity: AppCompatActivity() {
 
                         override fun onImageSaved(output: ImageCapture.OutputFileResults) {
                             val savedUri = Uri.fromFile(photoFile)
-                            val msg = "Photo capture succeeded: $savedUri"
-                           // Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
-                            Log.d(data.logTag, msg)
+                            Log.d(data.logTag, "Photo capture succeeded: $savedUri")
                         }
                     }
             )
@@ -82,41 +83,20 @@ open class MainActivity: AppCompatActivity() {
                             .build(),
                     ContextCompat
                             .getMainExecutor(this),
-                    RamCallBack(data
-                            .logTag
+                    RamCallBack(
+                        data.logTag
                     )
             )
 
     }
 
-    private fun startCamera() {
-            val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
-            cameraProviderFuture.addListener({
-            val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
-            val preview = Preview.Builder()
-                    .build()
-                    .also {
-                        it.setSurfaceProvider(previews.surfaceProvider)
-                    }
-            imageCapture = ImageCapture
-                    .Builder()
-                    .build()
-            val imageAnalyzer = ImageAnalysis.Builder()
-                    .build()
-                    .also {
-                        it.setAnalyzer(cameraExecutor, LuminosityAnalyzer { luma ->
-                            Log.d(data.logTag, "Average luminosity: $luma")
-                        })
-                    }
-            val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
-            try {
-                cameraProvider.unbindAll()
-                cameraProvider.bindToLifecycle(
-                        this, cameraSelector, preview, imageCapture, imageAnalyzer
-                )
-            } catch (exc: Exception) {
-                Log.e(data.logTag, "Use case binding failed", exc)
-            } }, ContextCompat.getMainExecutor(this))
+    private fun setFocusDistance(builder: ImageAnalysis.Builder, distance: Float) {
+        val extender: Camera2Interop.Extender<*> = Camera2Interop.Extender(builder)
+        extender.setCaptureRequestOption(
+            CaptureRequest.CONTROL_AF_MODE,
+            CameraMetadata.CONTROL_AF_MODE_OFF
+        )
+        extender.setCaptureRequestOption(CaptureRequest.LENS_FOCUS_DISTANCE, distance)
     }
 
     private fun getOutputDirectory(): File {
@@ -128,6 +108,40 @@ open class MainActivity: AppCompatActivity() {
         return if (mediaDir != null && mediaDir.exists()) mediaDir else filesDir
     }
 
+    private fun startCamera(): Unit {
+        val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
+        cameraProviderFuture.addListener({
+            val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
+            val preview = Preview.Builder()
+                .build()
+                .also {
+                    it.setSurfaceProvider(previews.surfaceProvider)
+                }
+            imageCapture = ImageCapture
+                .Builder()
+                .setTargetResolution(GlobalSettings.sizePhoto)
+                .build()
+            val imageAnalyzerBuilder = ImageAnalysis.Builder()
+            if(GlobalSettings.isManualFocus)
+              setFocusDistance(imageAnalyzerBuilder, GlobalSettings.manualFocus)
+            val imageAnalyzer = imageAnalyzerBuilder.build()
+                .also {
+                    it.setAnalyzer(cameraExecutor, LuminosityAnalyzer { luma ->
+                        Log.d(data.logTag, "Average luminosity: $luma")
+                    })
+                }
+            val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+            try {
+                cameraProvider.unbindAll()
+                val camera = cameraProvider.bindToLifecycle(
+                    this, cameraSelector, preview, imageCapture, imageAnalyzer
+                )
+                cameraInfo = camera.cameraInfo
+            } catch (exc: Exception) {
+                Log.e(data.logTag, "Use case binding failed", exc)
+            }
+        }, ContextCompat.getMainExecutor(this))
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         if (isAcceptCamera(this@MainActivity)) requestCameraPermission(this@MainActivity)
@@ -140,15 +154,16 @@ open class MainActivity: AppCompatActivity() {
         supportActionBar?.hide()
         if (!isAcceptCamera(this@MainActivity)) startCamera()
         if (!GlobalSettings.isServerStart && !GlobalSettings.isPortBind) {
-            server = ThreadServer(GlobalSettings.trigger, GlobalSettings.port, data.logTag) {
-                val imageStorages: ImageStorage = ImageStorage()
+            val startCamFunc: () -> Unit = { this.startCamera() }
+            server = ThreadServer(GlobalSettings.trigger, GlobalSettings.port, data.logTag, startCamFunc) {
+                val imageStorages = ImageStorage()
                 imageCapture?.takePicture(
                     ImageCapture
                         .OutputFileOptions
                         .Builder(imageStorages)
                         .build(),
                     ContextCompat
-                        .getMainExecutor(this),
+                        .getMainExecutor(this@MainActivity),
                     RamCallBack(
                         data
                             .logTag
