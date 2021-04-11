@@ -108,7 +108,7 @@ open class MainActivity: AppCompatActivity() {
         return if (mediaDir != null && mediaDir.exists()) mediaDir else filesDir
     }
 
-    private fun startCamera() {
+    private fun startCamera(): Unit {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
         cameraProviderFuture.addListener({
             val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
@@ -154,7 +154,8 @@ open class MainActivity: AppCompatActivity() {
         supportActionBar?.hide()
         if (!isAcceptCamera(this@MainActivity)) startCamera()
         if (!GlobalSettings.isServerStart && !GlobalSettings.isPortBind) {
-            server = ThreadServer(GlobalSettings.trigger, GlobalSettings.port, data.logTag) {
+            val startCamFunc: () -> Unit = { this.startCamera() }
+            server = ThreadServer(GlobalSettings.trigger, GlobalSettings.port, data.logTag, startCamFunc) {
                 val imageStorages = ImageStorage()
                 imageCapture?.takePicture(
                     ImageCapture

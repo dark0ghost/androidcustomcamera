@@ -1,12 +1,13 @@
 package org.dark0ghost.camera.implementation
 import android.util.Log
+import android.util.Size
 import org.dark0ghost.camera.fn.printTrace
 import org.dark0ghost.camera.interface_package.ServerThreadInterface
 import java.io.*
 import java.net.ServerSocket
 import java.net.Socket
 
-open class ThreadServer(private val trigger: List<String>, openPort: Int, private val logTag: String, private val callaBack: () -> String): Thread(), ServerThreadInterface {
+open class ThreadServer(private val trigger: List<String>, openPort: Int, private val logTag: String, private val updateCamera: () -> Unit, private val callaBack: () -> String): Thread(), ServerThreadInterface {
 
     private var serverSocket: ServerSocket = ServerSocket(openPort)
 
@@ -23,6 +24,7 @@ open class ThreadServer(private val trigger: List<String>, openPort: Int, privat
             bufferSender!!.println(res)
             Log.e(logTag, "send data $res")
             bufferSender!!.flush()
+            updateCamera()
         }
         "set_focus" ->{
             Log.e(logTag, "wait number focus")
@@ -36,6 +38,19 @@ open class ThreadServer(private val trigger: List<String>, openPort: Int, privat
             }else {
                 bufferSender!!.println("error: $mes is not float")
             }
+            bufferSender!!.flush()
+        }
+        "set_size_photo" ->{
+            val mes = buffer.readLine()
+            val listSize = mes.split(":")
+            val castToIntFirstSize = listSize[0].toIntOrNull()
+            val castToIntSecondSize = listSize[1].toIntOrNull()
+            if(castToIntFirstSize != null && castToIntSecondSize != null){
+                GlobalSettings.sizePhoto = Size(castToIntFirstSize,castToIntSecondSize)
+                bufferSender!!.println("ok")
+                updateCamera()
+            }
+            bufferSender!!.println("error size")
             bufferSender!!.flush()
         }
         else -> Unit

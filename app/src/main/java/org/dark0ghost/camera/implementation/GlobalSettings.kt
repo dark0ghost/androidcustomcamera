@@ -11,7 +11,7 @@ object GlobalSettings {
 
    var startServer: Boolean = true
 
-   val trigger: List<String> = listOf("send", "set_focus")
+   val trigger: List<String> = listOf("send", "set_focus", "set_size_photo")
 
    var isServerStart: Boolean = false
 
