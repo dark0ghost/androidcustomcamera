@@ -1,4 +1,5 @@
 package org.dark0ghost.camera.implementation
+
 import android.util.Log
 import android.util.Size
 import org.dark0ghost.camera.fn.printTrace
@@ -114,9 +115,8 @@ open class ThreadServer(private val trigger: List<String>, openPort: Int, privat
     }
 
     override fun close() {
-        if(!serverSocket.isClosed){
+        if(!serverSocket.isClosed)
            serverSocket.close()
-        }
         GlobalSettings.isPortBind = false
         GlobalSettings.isServerStart = false
         Log.e(logTag, "Server is end work")
