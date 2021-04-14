@@ -157,6 +157,7 @@ open class MainActivity: AppCompatActivity() {
             val startCamFunc: () -> Unit = { startCamera() }
             server = ThreadServer(GlobalSettings.trigger, GlobalSettings.port, data.logTag,cameraInfo, startCamFunc) {
                 val imageStorages = ImageStorage()
+                var  isPhotoSave = false
                 imageCapture?.takePicture(
                     ImageCapture
                         .OutputFileOptions
@@ -168,10 +169,10 @@ open class MainActivity: AppCompatActivity() {
                         data
                             .logTag
                     ) {
-                        server.isPhotoSave = true
+                        isPhotoSave = true
                     }
                 )
-                while (!server.isPhotoSave) sleep(10)
+                while (!isPhotoSave) sleep(10)
                 return@ThreadServer imageStorages.intArray.toString()
             }
             GlobalSettings.server = server
