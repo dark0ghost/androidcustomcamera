@@ -47,7 +47,7 @@ open class MainActivity: AppCompatActivity() {
     private lateinit var imageButton: ImageButton
     private lateinit var cameraButton: Button
     private lateinit var prefs: SharedPreferences
-    private lateinit var cameraInfo: CameraInfo
+    private var cameraInfo: CameraInfo? = null
 
     private fun takePhoto() {
         if (!GlobalSettings.ramMode) {
@@ -127,7 +127,7 @@ open class MainActivity: AppCompatActivity() {
             val imageAnalyzer = imageAnalyzerBuilder.build()
                 .also {
                     it.setAnalyzer(cameraExecutor, LuminosityAnalyzer { luma ->
-                        Log.d(data.logTag, "Average luminosity: $luma")
+                       // Log.d(data.logTag, "Average luminosity: $luma")
                     })
                 }
             val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
@@ -154,8 +154,8 @@ open class MainActivity: AppCompatActivity() {
         supportActionBar?.hide()
         if (!isAcceptCamera(this@MainActivity)) startCamera()
         if (!GlobalSettings.isServerStart && !GlobalSettings.isPortBind) {
-            val startCamFunc: () -> Unit = { this.startCamera() }
-            server = ThreadServer(GlobalSettings.trigger, GlobalSettings.port, data.logTag, startCamFunc) {
+            val startCamFunc: () -> Unit = { startCamera() }
+            server = ThreadServer(GlobalSettings.trigger, GlobalSettings.port, data.logTag,cameraInfo, startCamFunc) {
                 val imageStorages = ImageStorage()
                 imageCapture?.takePicture(
                     ImageCapture
@@ -185,7 +185,7 @@ open class MainActivity: AppCompatActivity() {
         previews = findViewById(R.id.viewFinder)
         cameraButton.setOnClickListener {
             val shake: Animation = AnimationUtils.loadAnimation(this, R.anim.shake)
-            this.takePhoto()
+            takePhoto()
             it.startAnimation(shake)
         }
         imageButton.setOnClickListener {
