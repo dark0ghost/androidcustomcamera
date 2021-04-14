@@ -78,7 +78,7 @@ open class ThreadServer(private val trigger: List<String>, openPort: Int, privat
                 }
                 Log.e(logTag, "connect")
                 Thread {
-                    while (!socket.isClosed) {
+                    while (!clientSocket.isClosed ) {
                         Log.e(logTag, "start handler")
                         val inputStream = clientSocket.getInputStream()
                         val inputData = BufferedReader(InputStreamReader(inputStream))
@@ -90,8 +90,8 @@ open class ThreadServer(private val trigger: List<String>, openPort: Int, privat
                             ),
                             true
                         )
-                        Log.e(logTag, "check")
                         val mes = inputData.readLine() ?: return@Thread
+                        Log.e(logTag, "check")
                         if (isCommand(mes)) {
                             runTask(mes, inputData, bufferSender)
                         } else {
