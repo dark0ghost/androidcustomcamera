@@ -13,20 +13,20 @@ open class ThreadServer(private val trigger: List<String>, openPort: Int, privat
 
     private var serverSocket: ServerSocket = ServerSocket(openPort)
 
-    private lateinit var clientSocket: Socket
+    private fun isCommand(message: String): Boolean {
+        synchronized(trigger) {
+            return message.replace("\n", "") in trigger
+        }
+    }
 
-    private var bufferSender: PrintWriter? = null
-
-    private fun isCommand(message: String): Boolean = message.replace("\n","") in trigger
-
-    private fun runTask(message: String, buffer:  BufferedReader): Unit {
+    private fun runTask(message: String, buffer:  BufferedReader, bufferSender: PrintWriter): Unit {
         Log.e(logTag, "wait callback")
         when (message){
             "send"->{
                 Log.e(logTag, "wait callback")
                 val res = callaBack()
                 Log.e(logTag, "send data $res")
-                bufferSender!!.println(res)
+                bufferSender.println(res)
             }
             "set_focus" ->{
                 Log.e(logTag, "wait number focus")
@@ -36,9 +36,9 @@ open class ThreadServer(private val trigger: List<String>, openPort: Int, privat
                     GlobalSettings.manualFocus = distances
                     GlobalSettings.isManualFocus = true
                     Log.e(logTag, "get focus distance $mes")
-                    bufferSender!!.println("ok, focus set")
+                    bufferSender.println("ok, focus set")
                 }else {
-                    bufferSender!!.println("error: $mes is not float")
+                    bufferSender.println("error: $mes is not float")
                 }
                 updateCamera()
             }
@@ -50,14 +50,14 @@ open class ThreadServer(private val trigger: List<String>, openPort: Int, privat
                 val castToIntSecondSize = listSize[1].toIntOrNull()
                 if(castToIntFirstSize != null && castToIntSecondSize != null){
                     GlobalSettings.sizePhoto = Size(castToIntFirstSize,castToIntSecondSize)
-                    bufferSender!!.println("ok, size photo set")
+                    bufferSender.println("ok, size photo set")
                     updateCamera()
                 }else {
-                    bufferSender!!.println("error size: $castToIntFirstSize:$castToIntSecondSize")
+                    bufferSender.println("error size: $castToIntFirstSize:$castToIntSecondSize")
                 }
             }
             "get_focus_data" -> {
-                bufferSender!!.println(cameraInfo?.zoomState?.value.toString())
+                bufferSender.println(cameraInfo?.zoomState?.value.toString())
             }
             else -> Unit
         }
@@ -67,10 +67,9 @@ open class ThreadServer(private val trigger: List<String>, openPort: Int, privat
         GlobalSettings.isServerStart = true
         Log.e(logTag,"run")
         while (!isInterrupted && !serverSocket.isClosed) {
+            val clientSocket: Socket
             try {
                 Log.e(logTag, "wait")
-                val inputStreamold = clientSocket.getInputStream()
-                val inputDataold = BufferedReader(InputStreamReader(inputStreamold))
 
                 try {
                     clientSocket = serverSocket.accept()
@@ -78,24 +77,29 @@ open class ThreadServer(private val trigger: List<String>, openPort: Int, privat
                     continue
                 }
                 Log.e(logTag, "connect")
-                val inputStream = clientSocket.getInputStream()
-                val inputData = BufferedReader(InputStreamReader(inputStream))
-                bufferSender = PrintWriter(
-                    BufferedWriter(
-                        OutputStreamWriter(
-                            clientSocket.getOutputStream()
+                Thread {
+                    while (!clientSocket.isClosed ) {
+                        Log.e(logTag, "start handler")
+                        val inputStream = clientSocket.getInputStream()
+                        val inputData = BufferedReader(InputStreamReader(inputStream))
+                        val bufferSender = PrintWriter(
+                            BufferedWriter(
+                                OutputStreamWriter(
+                                    clientSocket.getOutputStream()
+                                )
+                            ),
+                            true
                         )
-                    ),
-                    true
-                )
-                Log.e(logTag, "check")
-                val mes = inputData.readLine()
-                if (isCommand(mes)) {
-                    runTask(mes, inputData)
-                } else {
-                    bufferSender!!.println("error: Unknown command $mes")
-                    Log.e(logTag, "error: Unknown command $mes")
-                }
+                        val mes = inputData.readLine() ?: return@Thread
+                        Log.e(logTag, "check")
+                        if (isCommand(mes)) {
+                            runTask(mes, inputData, bufferSender)
+                        } else {
+                            bufferSender.println("error: Unknown command $mes")
+                            Log.e(logTag, "error: Unknown command $mes")
+                        }
+                    }
+                }.start()
 
             } catch (e: Exception) {
                 printTrace(e)
