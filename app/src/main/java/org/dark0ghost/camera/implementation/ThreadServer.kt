@@ -2,13 +2,14 @@ package org.dark0ghost.camera.implementation
 
 import android.util.Log
 import android.util.Size
+import androidx.camera.core.CameraInfo
 import org.dark0ghost.camera.fn.printTrace
 import org.dark0ghost.camera.interface_package.ServerThreadInterface
 import java.io.*
 import java.net.ServerSocket
 import java.net.Socket
 
-open class ThreadServer(private val trigger: List<String>, openPort: Int, private val logTag: String, private val updateCamera: () -> Unit, private val callaBack: () -> String): Thread(), ServerThreadInterface {
+open class ThreadServer(private val trigger: List<String>, openPort: Int, private val logTag: String, private val cameraInfo: CameraInfo?, private val updateCamera: () -> Unit, private val callaBack: () -> String): Thread(), ServerThreadInterface {
 
     private var serverSocket: ServerSocket = ServerSocket(openPort)
 
@@ -22,10 +23,8 @@ open class ThreadServer(private val trigger: List<String>, openPort: Int, privat
         "send"->{
             Log.e(logTag, "wait callback")
             val res = callaBack()
-            bufferSender!!.println(res)
             Log.e(logTag, "send data $res")
-            bufferSender!!.flush()
-            updateCamera()
+            bufferSender!!.println(res)
         }
         "set_focus" ->{
             Log.e(logTag, "wait number focus")
@@ -35,24 +34,28 @@ open class ThreadServer(private val trigger: List<String>, openPort: Int, privat
                 GlobalSettings.manualFocus = distances
                 GlobalSettings.isManualFocus = true
                 Log.e(logTag, "get focus distance $mes")
-                bufferSender!!.println("ok")
+                bufferSender!!.println("ok, focus set")
             }else {
                 bufferSender!!.println("error: $mes is not float")
             }
-            bufferSender!!.flush()
+            updateCamera()
         }
         "set_size_photo" ->{
+            Log.e(logTag, "wait size photo")
             val mes = buffer.readLine()
             val listSize = mes.split(":")
             val castToIntFirstSize = listSize[0].toIntOrNull()
             val castToIntSecondSize = listSize[1].toIntOrNull()
             if(castToIntFirstSize != null && castToIntSecondSize != null){
                 GlobalSettings.sizePhoto = Size(castToIntFirstSize,castToIntSecondSize)
-                bufferSender!!.println("ok")
+                bufferSender!!.println("ok, size photo set")
                 updateCamera()
+            }else {
+                bufferSender!!.println("error size: $castToIntFirstSize:$castToIntSecondSize")
             }
-            bufferSender!!.println("error size")
-            bufferSender!!.flush()
+        }
+        "get_focus_data" -> {
+            bufferSender!!.println(cameraInfo?.zoomState?.value.toString())
         }
         else -> Unit
     }
@@ -60,37 +63,38 @@ open class ThreadServer(private val trigger: List<String>, openPort: Int, privat
     private fun runServer(){
         GlobalSettings.isServerStart = true
         Log.e(logTag,"run")
-        try {
-                while (!isInterrupted && !serverSocket.isClosed) {
-                    Log.e(logTag, "wait")
-                    try {
+        while (!isInterrupted && !serverSocket.isClosed) {
+            try {
+                Log.e(logTag, "wait")
+                try {
                     clientSocket = serverSocket.accept()
-                    }catch (e: java.net.SocketException){
-                        return
-                    }
-                    Log.e(logTag, "connect")
-                    val inputStream = clientSocket.getInputStream()
-                    val inputData = BufferedReader(InputStreamReader(inputStream))
-                    bufferSender = PrintWriter(
-                            BufferedWriter(
-                                    OutputStreamWriter(
-                                            clientSocket.getOutputStream()
-                                    )
-                            ),
-                            true)
-                    Log.e(logTag, "check")
-                    val mes = inputData.readLine()
-                    if (isCommand(mes)) {
-                        runTask(mes, inputData)
-                    } else {
-                        bufferSender!!.println("error: Unknown command $mes")
-                        bufferSender!!.flush()
-                        Log.e(logTag, "error: Unknown command $mes")
-                    }
+                } catch (e: java.net.SocketException) {
+                    continue
                 }
-            } catch (e: Exception){
+                Log.e(logTag, "connect")
+                val inputStream = clientSocket.getInputStream()
+                val inputData = BufferedReader(InputStreamReader(inputStream))
+                bufferSender = PrintWriter(
+                    BufferedWriter(
+                        OutputStreamWriter(
+                            clientSocket.getOutputStream()
+                        )
+                    ),
+                    true
+                )
+                Log.e(logTag, "check")
+                val mes = inputData.readLine()
+                if (isCommand(mes)) {
+                    runTask(mes, inputData)
+                } else {
+                    bufferSender!!.println("error: Unknown command $mes")
+                    Log.e(logTag, "error: Unknown command $mes")
+                }
+
+            } catch (e: Exception) {
                 printTrace(e)
             }
+        }
         }
 
     init{
