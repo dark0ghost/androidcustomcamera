@@ -20,3 +20,12 @@ max Android 11 (API level 30);
 ![](https://github.com/dark0ghost/androidcustomcamera/blob/master/static/app.png)
 # settings
 ![](https://github.com/dark0ghost/androidcustomcamera/blob/master/static/settings.png)
+
+
+## server command
+|--|---|---|
+|name|about|use|
+|send | send photo how byte array| send\n|
+|set_focus| set focus distance| set_focus\n100f\n |
+|set_size_photo| set size photo|set_size_photo\n3840:2100\n|
+|get_focus_data| get minimal and maximum focus size| freeze|
