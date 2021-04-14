@@ -6,6 +6,10 @@ typealias IntArrayBuffer = MutableList<Byte>
 
 open class ImageStorage: OutputStream() {
 
+    private fun IntArrayBuffer.toStrings(): String {
+      TODO()
+    }
+
     open val intArray: IntArrayBuffer = mutableListOf()
 
     override fun write(b: Int) {
@@ -15,6 +19,12 @@ open class ImageStorage: OutputStream() {
     override fun close(){
         intArray.clear()
         super.close()
+    }
+
+    fun getDataAndClose(): String {
+        val response = intArray.toString()
+        close()
+        return response
     }
 
 }

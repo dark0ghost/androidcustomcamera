@@ -49,6 +49,9 @@ open class MainActivity: AppCompatActivity() {
     private lateinit var prefs: SharedPreferences
     private var cameraInfo: CameraInfo? = null
 
+    /**
+     * make photo on device and save in file or ram
+     */
     private fun takePhoto() {
         if (!GlobalSettings.ramMode) {
             val imageCaptures = imageCapture ?: return
@@ -173,7 +176,7 @@ open class MainActivity: AppCompatActivity() {
                     }
                 )
                 while (!isPhotoSave) sleep(10)
-                return@ThreadServer imageStorages.intArray.toString()
+                return@ThreadServer imageStorages.getDataAndClose()
             }
             GlobalSettings.server = server
         }
