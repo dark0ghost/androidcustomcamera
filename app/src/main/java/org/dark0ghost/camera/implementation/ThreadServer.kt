@@ -26,7 +26,7 @@ open class ThreadServer(private val trigger: List<String>, openPort: Int, privat
                 Log.e(logTag, "wait callback")
                 val res = callaBack()
                 Log.e(logTag, "send data $res")
-                bufferSender.println(res)
+                bufferSender.println(res.replace(","," "))
             }
             "set_focus" ->{
                 Log.e(logTag, "wait number focus")
