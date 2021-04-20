@@ -23,8 +23,8 @@ max Android 11 (API level 30);
 
 
 ## server command
-|--|---|---|
 |name|about|use|
+|-----|---|---|
 |send | send photo how byte array| send\n|
 |set_focus| set focus distance| set_focus\n100f\n |
 |set_size_photo| set size photo|set_size_photo\n3840:2100\n|
