@@ -8,7 +8,9 @@ data class ConstVar(var logTag: String = "CameraLogs",var fileNameFormat: String
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
         other as ConstVar
-        return !(logTag != other.logTag && fileNameFormat != other.fileNameFormat && requestCodePermission != other.requestCodePermission && !requiredPermissions.contentEquals(other.requiredPermissions))
+        return !(logTag != other.logTag && fileNameFormat != other.fileNameFormat && requestCodePermission != other.requestCodePermission && !requiredPermissions.contentEquals(
+            other.requiredPermissions
+        ))
     }
 
     override fun hashCode(): Int {
