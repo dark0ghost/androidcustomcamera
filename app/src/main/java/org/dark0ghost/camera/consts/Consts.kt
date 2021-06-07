@@ -25,10 +25,10 @@ data class ConstVar(var logTag: String = "CameraLogs",var fileNameFormat: String
     override fun toString(): String {
         return """
             {
-            log:$logTag,
-            format:$fileNameFormat,
-            code permission:$requestCodePermission,
-            required permissions$requiredPermissions,
+            log: $logTag,
+            format: $fileNameFormat,
+            code permission: $requestCodePermission,
+            required permissions $requiredPermissions,
             }
         """.trimIndent()
     }
