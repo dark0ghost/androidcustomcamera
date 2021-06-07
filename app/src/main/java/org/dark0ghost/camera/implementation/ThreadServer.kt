@@ -14,9 +14,7 @@ open class ThreadServer(private val trigger: List<String>, openPort: Int, privat
     private var serverSocket: ServerSocket = ServerSocket(openPort)
 
     private fun isCommand(message: String): Boolean {
-        synchronized(trigger) {
             return message.replace("\n", "") in trigger
-        }
     }
 
     private fun runTask(message: String, buffer: BufferedReader, bufferSender: PrintWriter): Unit {
@@ -111,8 +109,6 @@ open class ThreadServer(private val trigger: List<String>, openPort: Int, privat
     init {
         GlobalSettings.isPortBind = true
     }
-
-    open var isPhotoSave: Boolean = false
 
     override val socket
         get() = serverSocket
