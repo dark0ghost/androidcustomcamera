@@ -7,7 +7,7 @@ typealias IntArrayBuffer = MutableList<Byte>
 open class ImageStorage: OutputStream() {
 
     private fun IntArrayBuffer.toStrings(): String {
-      TODO()
+        TODO()
     }
 
     open val intArray: IntArrayBuffer = mutableListOf()
@@ -16,7 +16,7 @@ open class ImageStorage: OutputStream() {
         intArray.add(b.toByte())
     }
 
-    override fun close(){
+    override fun close() {
         intArray.clear()
         super.close()
     }
