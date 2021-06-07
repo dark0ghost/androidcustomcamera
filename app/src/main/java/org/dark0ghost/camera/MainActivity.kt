@@ -56,40 +56,40 @@ open class MainActivity: AppCompatActivity() {
         if (!GlobalSettings.ramMode) {
             val imageCaptures = imageCapture ?: return
             val photoFile = File(
-                    outputDirectory,
-                    SimpleDateFormat(
-                            data.fileNameFormat, Locale.US
-                    ).format(System.currentTimeMillis()) + ".jpg"
+                outputDirectory,
+                SimpleDateFormat(
+                    data.fileNameFormat, Locale.US
+                ).format(System.currentTimeMillis()) + ".jpg"
             )
             val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile).build()
             imageCaptures.takePicture(
-                    outputOptions,
-                    ContextCompat.getMainExecutor(this),
-                    object : ImageCapture.OnImageSavedCallback {
-                        override fun onError(exc: ImageCaptureException) {
-                            Log.e(data.logTag, "Photo capture failed: ${exc.message}", exc)
-                        }
-
-                        override fun onImageSaved(output: ImageCapture.OutputFileResults) {
-                            val savedUri = Uri.fromFile(photoFile)
-                            Log.d(data.logTag, "Photo capture succeeded: $savedUri")
-                        }
+                outputOptions,
+                ContextCompat.getMainExecutor(this),
+                object : ImageCapture.OnImageSavedCallback {
+                    override fun onError(exc: ImageCaptureException) {
+                        Log.e(data.logTag, "Photo capture failed: ${exc.message}", exc)
                     }
+
+                    override fun onImageSaved(output: ImageCapture.OutputFileResults) {
+                        val savedUri = Uri.fromFile(photoFile)
+                        Log.d(data.logTag, "Photo capture succeeded: $savedUri")
+                    }
+                }
             )
             return
         }
 
         imageCapture?.takePicture(
-                    ImageCapture
-                            .OutputFileOptions
-                            .Builder(imageStorage)
-                            .build(),
-                    ContextCompat
-                            .getMainExecutor(this),
-                    RamCallBack(
-                        data.logTag
-                    )
+            ImageCapture
+                .OutputFileOptions
+                .Builder(imageStorage)
+                .build(),
+            ContextCompat
+                .getMainExecutor(this),
+            RamCallBack(
+                data.logTag
             )
+        )
 
     }
 
@@ -125,12 +125,12 @@ open class MainActivity: AppCompatActivity() {
                 .setTargetResolution(GlobalSettings.sizePhoto)
                 .build()
             val imageAnalyzerBuilder = ImageAnalysis.Builder()
-            if(GlobalSettings.isManualFocus)
-              setFocusDistance(imageAnalyzerBuilder, GlobalSettings.manualFocus)
+            if (GlobalSettings.isManualFocus)
+                setFocusDistance(imageAnalyzerBuilder, GlobalSettings.manualFocus)
             val imageAnalyzer = imageAnalyzerBuilder.build()
                 .also {
                     it.setAnalyzer(cameraExecutor, LuminosityAnalyzer { luma ->
-                       Log.d(data.logTag, "Average luminosity: $luma")
+                        Log.d(data.logTag, "Average luminosity: $luma")
                     })
                 }
             val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
@@ -158,9 +158,15 @@ open class MainActivity: AppCompatActivity() {
         if (!isAcceptCamera(this@MainActivity)) startCamera()
         if (!GlobalSettings.isServerStart && !GlobalSettings.isPortBind) {
             val startCamFunc: () -> Unit = { startCamera() }
-            server = ThreadServer(GlobalSettings.trigger, GlobalSettings.port, data.logTag,cameraInfo, startCamFunc) {
+            server = ThreadServer(
+                GlobalSettings.trigger,
+                GlobalSettings.port,
+                data.logTag,
+                cameraInfo,
+                startCamFunc
+            ) {
                 val imageStorages = ImageStorage()
-                var  isPhotoSave = false
+                var isPhotoSave = false
                 imageCapture?.takePicture(
                     ImageCapture
                         .OutputFileOptions
@@ -212,9 +218,9 @@ open class MainActivity: AppCompatActivity() {
     }
 
     override fun onRequestPermissionsResult(
-            requestCode: Int,
-            permissions: Array<out String>,
-            grantResults: IntArray
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         Log.d(data.logTag, "code: $requestCode")

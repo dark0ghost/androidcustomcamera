@@ -19,16 +19,16 @@ open class ThreadServer(private val trigger: List<String>, openPort: Int, privat
         }
     }
 
-    private fun runTask(message: String, buffer:  BufferedReader, bufferSender: PrintWriter): Unit {
+    private fun runTask(message: String, buffer: BufferedReader, bufferSender: PrintWriter): Unit {
         Log.e(logTag, "wait callback")
-        when (message){
-            "send"->{
+        when (message) {
+            "send" -> {
                 Log.e(logTag, "wait callback")
                 val res = callaBack()
                 Log.e(logTag, "send data $res")
-                bufferSender.println(res.replace(","," ").replace("["," ").replace("]"," "))
+                bufferSender.println(res.replace(",", " ").replace("[", " ").replace("]", " "))
             }
-            "set_focus" ->{
+            "set_focus" -> {
                 Log.e(logTag, "wait number focus")
                 val mes = buffer.readLine()
                 val distances = mes.toFloatOrNull()
@@ -37,22 +37,22 @@ open class ThreadServer(private val trigger: List<String>, openPort: Int, privat
                     GlobalSettings.isManualFocus = true
                     Log.e(logTag, "get focus distance $mes")
                     bufferSender.println("ok, focus set")
-                }else {
+                } else {
                     bufferSender.println("error: $mes is not float")
                 }
                 updateCamera()
             }
-            "set_size_photo" ->{
+            "set_size_photo" -> {
                 Log.e(logTag, "wait size photo")
                 val mes = buffer.readLine()
                 val listSize = mes.split(":")
                 val castToIntFirstSize = listSize[0].toIntOrNull()
                 val castToIntSecondSize = listSize[1].toIntOrNull()
-                if(castToIntFirstSize != null && castToIntSecondSize != null){
-                    GlobalSettings.sizePhoto = Size(castToIntFirstSize,castToIntSecondSize)
+                if (castToIntFirstSize != null && castToIntSecondSize != null) {
+                    GlobalSettings.sizePhoto = Size(castToIntFirstSize, castToIntSecondSize)
                     bufferSender.println("ok, size photo set")
                     updateCamera()
-                }else {
+                } else {
                     bufferSender.println("error size: $castToIntFirstSize:$castToIntSecondSize")
                 }
             }
@@ -63,9 +63,9 @@ open class ThreadServer(private val trigger: List<String>, openPort: Int, privat
         }
     }
 
-    private fun runServer(){
+    private fun runServer() {
         GlobalSettings.isServerStart = true
-        Log.e(logTag,"run")
+        Log.e(logTag, "run")
         while (!isInterrupted && !serverSocket.isClosed) {
             val clientSocket: Socket
             try {
@@ -78,7 +78,7 @@ open class ThreadServer(private val trigger: List<String>, openPort: Int, privat
                 }
                 Log.e(logTag, "connect")
                 Thread {
-                    while (!clientSocket.isClosed ) {
+                    while (!clientSocket.isClosed) {
                         Log.e(logTag, "start handler")
                         val inputStream = clientSocket.getInputStream()
                         val inputData = BufferedReader(InputStreamReader(inputStream))
@@ -106,9 +106,9 @@ open class ThreadServer(private val trigger: List<String>, openPort: Int, privat
             }
         }
         Log.e(logTag, "stop func")
-        }
+    }
 
-    init{
+    init {
         GlobalSettings.isPortBind = true
     }
 
@@ -130,8 +130,8 @@ open class ThreadServer(private val trigger: List<String>, openPort: Int, privat
     }
 
     override fun close() {
-        if(!serverSocket.isClosed)
-           serverSocket.close()
+        if (!serverSocket.isClosed)
+            serverSocket.close()
         GlobalSettings.isPortBind = false
         GlobalSettings.isServerStart = false
         Log.e(logTag, "Server is end work")
