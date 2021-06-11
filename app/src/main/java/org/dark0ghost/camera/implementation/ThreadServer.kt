@@ -79,7 +79,7 @@ open class ThreadServer(private val trigger: List<String>, openPort: Int, privat
                     val sock = clientSocket
                     val inputStream = sock.getInputStream()
                     val inputData = BufferedReader(InputStreamReader(inputStream))
-                    while (!clientSocket.isClosed) {
+                    while (!sock.isClosed) {
 
                         Log.e(logTag, "start handler")
                         val bufferSender = PrintWriter(
