@@ -130,7 +130,7 @@ open class MainActivity: AppCompatActivity() {
             val imageAnalyzer = imageAnalyzerBuilder.build()
                 .also {
                     it.setAnalyzer(cameraExecutor, LuminosityAnalyzer { luma ->
-                       Log.d(data.logTag, "Average luminosity: $luma")
+                       // Log.d(data.logTag, "Average luminosity: $luma")
                     })
                 }
             val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
@@ -175,6 +175,7 @@ open class MainActivity: AppCompatActivity() {
                         isPhotoSave = true
                     }
                 )
+                Log.e(data.logTag,"wait photo")
                 while (!isPhotoSave) sleep(10)
                 return@ThreadServer imageStorages.getDataAndClose()
             }
