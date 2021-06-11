@@ -76,19 +76,24 @@ open class ThreadServer(private val trigger: List<String>, openPort: Int, privat
                 }
                 Log.e(logTag, "connect")
                 Thread {
-                    while (!clientSocket.isClosed) {
+                    val sock = clientSocket
+                    val inputStream = sock.getInputStream()
+                    val inputData = BufferedReader(InputStreamReader(inputStream))
+                    while (!sock.isClosed) {
+
                         Log.e(logTag, "start handler")
-                        val inputStream = clientSocket.getInputStream()
-                        val inputData = BufferedReader(InputStreamReader(inputStream))
                         val bufferSender = PrintWriter(
                             BufferedWriter(
                                 OutputStreamWriter(
-                                    clientSocket.getOutputStream()
+                                    sock.getOutputStream()
                                 )
                             ),
                             true
                         )
-                        val mes = inputData.readLine() ?: return@Thread
+                        val mes = try{ inputData.readLine() ?: return@Thread} catch (e: java.net.SocketException) {
+                            printTrace(e)
+                            return@Thread
+                        }
                         Log.e(logTag, "check")
                         if (isCommand(mes)) {
                             runTask(mes, inputData, bufferSender)
@@ -96,6 +101,7 @@ open class ThreadServer(private val trigger: List<String>, openPort: Int, privat
                             bufferSender.println("error: Unknown command $mes")
                             Log.e(logTag, "error: Unknown command $mes")
                         }
+
                     }
                 }.start()
 
