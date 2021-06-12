@@ -1,0 +1,112 @@
+Index: app/src/main/java/org/dark0ghost/camera/MainActivity.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package org.dark0ghost.camera\n\nimport android.content.Context\nimport android.content.Intent\nimport android.content.SharedPreferences\nimport android.hardware.camera2.CameraMetadata\nimport android.hardware.camera2.CaptureRequest\nimport android.net.Uri\nimport android.os.Bundle\nimport android.os.Process\nimport android.os.StrictMode\nimport android.os.StrictMode.ThreadPolicy\nimport android.util.Log\nimport android.view.animation.Animation\nimport android.view.animation.AnimationUtils\nimport android.widget.Button\nimport android.widget.ImageButton\nimport androidx.appcompat.app.AppCompatActivity\nimport androidx.camera.camera2.interop.Camera2Interop\nimport androidx.camera.core.*\nimport androidx.camera.lifecycle.ProcessCameraProvider\nimport androidx.camera.view.PreviewView\nimport androidx.core.content.ContextCompat\nimport org.dark0ghost.camera.consts.ConstVar\nimport org.dark0ghost.camera.fn.setGlobalSettingsFromContext\nimport org.dark0ghost.camera.fn.setNewPref\nimport org.dark0ghost.camera.implementation.*\nimport org.dark0ghost.camera.permission.isAcceptCamera\nimport org.dark0ghost.camera.permission.requestCameraPermission\nimport java.io.File\nimport java.lang.Thread.sleep\nimport java.text.SimpleDateFormat\nimport java.util.*\nimport java.util.concurrent.ExecutorService\nimport java.util.concurrent.Executors\n\n\nopen class MainActivity: AppCompatActivity() {\n\n    private var imageCapture: ImageCapture? = null\n    private val imageStorage: ImageStorage = ImageStorage()\n    private val data: ConstVar = ConstVar()\n    private lateinit var outputDirectory: File\n    private lateinit var cameraExecutor: ExecutorService\n    private lateinit var previews: PreviewView\n    private lateinit var server: ThreadServer\n    private lateinit var imageButton: ImageButton\n    private lateinit var cameraButton: Button\n    private lateinit var prefs: SharedPreferences\n    private var cameraInfo: CameraInfo? = null\n\n    /**\n     * make photo on device and save in file or ram\n     */\n    private fun takePhoto() {\n        if (!GlobalSettings.ramMode) {\n            val imageCaptures = imageCapture ?: return\n            val photoFile = File(\n                outputDirectory,\n                SimpleDateFormat(\n                    data.fileNameFormat, Locale.US\n                ).format(System.currentTimeMillis()) + \".jpg\"\n            )\n            val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile).build()\n            imageCaptures.takePicture(\n                outputOptions,\n                ContextCompat.getMainExecutor(this),\n                object : ImageCapture.OnImageSavedCallback {\n                    override fun onError(exc: ImageCaptureException) {\n                        Log.e(data.logTag, \"Photo capture failed: ${exc.message}\", exc)\n                    }\n\n                    override fun onImageSaved(output: ImageCapture.OutputFileResults) {\n                        val savedUri = Uri.fromFile(photoFile)\n                        Log.d(data.logTag, \"Photo capture succeeded: $savedUri\")\n                    }\n                }\n            )\n            return\n        }\n\n        imageCapture?.takePicture(\n            ImageCapture\n                .OutputFileOptions\n                .Builder(imageStorage)\n                .build(),\n            ContextCompat\n                .getMainExecutor(this),\n            RamCallBack(\n                data.logTag\n            )\n        )\n\n    }\n\n    private fun setFocusDistance(builder: ImageAnalysis.Builder, distance: Float) {\n        val extender: Camera2Interop.Extender<*> = Camera2Interop.Extender(builder)\n        extender.setCaptureRequestOption(\n            CaptureRequest.CONTROL_AF_MODE,\n            CameraMetadata.CONTROL_AF_MODE_OFF\n        )\n        extender.setCaptureRequestOption(CaptureRequest.LENS_FOCUS_DISTANCE, distance)\n    }\n\n    private fun getOutputDirectory(): File {\n        val mediaDir = externalMediaDirs.firstOrNull()?.let {\n            File(it, \"camera\").apply {\n                mkdirs()\n            }\n        }\n        return if (mediaDir != null && mediaDir.exists()) mediaDir else filesDir\n    }\n\n    private fun startCamera(): Unit {\n        val cameraProviderFuture = ProcessCameraProvider.getInstance(this)\n        cameraProviderFuture.addListener({\n            val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()\n            val preview = Preview.Builder()\n                .build()\n                .also {\n                    it.setSurfaceProvider(previews.surfaceProvider)\n                }\n            imageCapture = ImageCapture\n                .Builder()\n                .setTargetResolution(GlobalSettings.sizePhoto)\n                .build()\n            val imageAnalyzerBuilder = ImageAnalysis.Builder()\n            if (GlobalSettings.isManualFocus)\n                setFocusDistance(imageAnalyzerBuilder, GlobalSettings.manualFocus)\n            val imageAnalyzer = imageAnalyzerBuilder.build()\n                .also {\n                    it.setAnalyzer(cameraExecutor, LuminosityAnalyzer { luma ->\n                        Log.d(data.logTag, \"Average luminosity: $luma\")\n                    })\n                }\n            val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA\n            try {\n                cameraProvider.unbindAll()\n                val camera = cameraProvider.bindToLifecycle(\n                    this, cameraSelector, preview, imageCapture, imageAnalyzer\n                )\n                cameraInfo = camera.cameraInfo\n            } catch (exc: Exception) {\n                Log.e(data.logTag, \"Use case binding failed\", exc)\n            }\n        }, ContextCompat.getMainExecutor(this))\n    }\n\n    override fun onCreate(savedInstanceState: Bundle?) {\n        if (isAcceptCamera(this@MainActivity)) requestCameraPermission(this@MainActivity)\n        super.onCreate(savedInstanceState)\n        val policy = ThreadPolicy.Builder().permitAll().build()\n        StrictMode.setThreadPolicy(policy)\n        setContentView(R.layout.activity_main)\n        prefs = getSharedPreferences(\"settings\", Context.MODE_PRIVATE)\n        setGlobalSettingsFromContext(prefs, data)\n        supportActionBar?.hide()\n        if (!isAcceptCamera(this@MainActivity)) startCamera()\n        if (!GlobalSettings.isServerStart && !GlobalSettings.isPortBind) {\n            val startCamFunc: () -> Unit = { startCamera() }\n            server = ThreadServer(\n                GlobalSettings.trigger,\n                GlobalSettings.port,\n                data.logTag,\n                cameraInfo,\n                startCamFunc\n            ) {\n                val imageStorages = ImageStorage()\n                var isPhotoSave = false\n                imageCapture?.takePicture(\n                    ImageCapture\n                        .OutputFileOptions\n                        .Builder(imageStorages)\n                        .build(),\n                    ContextCompat\n                        .getMainExecutor(this@MainActivity),\n                    RamCallBack(\n                        data\n                            .logTag\n                    ) {\n                        isPhotoSave = true\n                    }\n                )\n                while (!isPhotoSave) sleep(10)\n                return@ThreadServer imageStorages.getDataAndClose()\n            }\n            GlobalSettings.server = server\n        }\n        if (GlobalSettings.startServer && !GlobalSettings.isServerStart) {\n            server.start()\n            GlobalSettings.isServerStart = true\n        }\n        cameraButton = findViewById(R.id.MakePhoto)\n        imageButton = findViewById(R.id.settings_button)\n        previews = findViewById(R.id.viewFinder)\n        cameraButton.setOnClickListener {\n            val shake: Animation = AnimationUtils.loadAnimation(this, R.anim.shake)\n            takePhoto()\n            it.startAnimation(shake)\n        }\n        imageButton.setOnClickListener {\n            val intent = Intent(this, SettingsActivity::class.java)\n            startActivity(intent)\n        }\n        outputDirectory = getOutputDirectory()\n        cameraExecutor = Executors.newSingleThreadExecutor()\n        Log.d(data.logTag, GlobalSettings.ipServer)\n    }\n\n    override fun onDestroy() {\n        super.onDestroy()\n        setNewPref(prefs, data)\n        cameraExecutor.shutdown()\n        if (!GlobalSettings.isServerStart) {\n            server.close()\n        }\n        imageStorage.close()\n    }\n\n    override fun onRequestPermissionsResult(\n        requestCode: Int,\n        permissions: Array<out String>,\n        grantResults: IntArray\n    ) {\n        super.onRequestPermissionsResult(requestCode, permissions, grantResults)\n        Log.d(data.logTag, \"code: $requestCode\")\n        startCamera()\n    }\n\n    override fun onLowMemory() {\n        Process.killProcess(Process.myPid())\n        super.onLowMemory()\n    }\n\n    override fun onPause() {\n        super.onPause()\n        setNewPref(prefs, data)\n    }\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/org/dark0ghost/camera/MainActivity.kt b/app/src/main/java/org/dark0ghost/camera/MainActivity.kt
+--- a/app/src/main/java/org/dark0ghost/camera/MainActivity.kt	
++++ b/app/src/main/java/org/dark0ghost/camera/MainActivity.kt	
+@@ -27,6 +27,7 @@
+ import org.dark0ghost.camera.implementation.*
+ import org.dark0ghost.camera.permission.isAcceptCamera
+ import org.dark0ghost.camera.permission.requestCameraPermission
++import java.io.ByteArrayOutputStream
+ import java.io.File
+ import java.lang.Thread.sleep
+ import java.text.SimpleDateFormat
+@@ -38,7 +39,7 @@
+ open class MainActivity: AppCompatActivity() {
+ 
+     private var imageCapture: ImageCapture? = null
+-    private val imageStorage: ImageStorage = ImageStorage()
++    private val storage: ByteArrayOutputStream = ByteArrayOutputStream()
+     private val data: ConstVar = ConstVar()
+     private lateinit var outputDirectory: File
+     private lateinit var cameraExecutor: ExecutorService
+@@ -53,8 +54,8 @@
+      * make photo on device and save in file or ram
+      */
+     private fun takePhoto() {
+-        if (!GlobalSettings.ramMode) {
+-            val imageCaptures = imageCapture ?: return
++        val imageCaptures = imageCapture ?: return
++        if (!GlobalSettings.ramMode) {
+             val photoFile = File(
+                 outputDirectory,
+                 SimpleDateFormat(
+@@ -79,10 +80,10 @@
+             return
+         }
+ 
+-        imageCapture?.takePicture(
++        imageCaptures.takePicture(
+             ImageCapture
+                 .OutputFileOptions
+-                .Builder(imageStorage)
++                .Builder(storage)
+                 .build(),
+             ContextCompat
+                 .getMainExecutor(this),
+@@ -130,7 +131,7 @@
+             val imageAnalyzer = imageAnalyzerBuilder.build()
+                 .also {
+                     it.setAnalyzer(cameraExecutor, LuminosityAnalyzer { luma ->
+-                        Log.d(data.logTag, "Average luminosity: $luma")
++                      //  Log.d(data.logTag, "Average luminosity: $luma")
+                     })
+                 }
+             val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+@@ -165,12 +166,12 @@
+                 cameraInfo,
+                 startCamFunc
+             ) {
+-                val imageStorages = ImageStorage()
++                val storages = ByteArrayOutputStream()
+                 var isPhotoSave = false
+                 imageCapture?.takePicture(
+                     ImageCapture
+                         .OutputFileOptions
+-                        .Builder(imageStorages)
++                        .Builder(storages)
+                         .build(),
+                     ContextCompat
+                         .getMainExecutor(this@MainActivity),
+@@ -182,7 +183,7 @@
+                     }
+                 )
+                 while (!isPhotoSave) sleep(10)
+-                return@ThreadServer imageStorages.getDataAndClose()
++                return@ThreadServer storages.toString()
+             }
+             GlobalSettings.server = server
+         }
+@@ -214,7 +215,7 @@
+         if (!GlobalSettings.isServerStart) {
+             server.close()
+         }
+-        imageStorage.close()
++        storage.close()
+     }
+ 
+     override fun onRequestPermissionsResult(
+Index: build.gradle
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>\nbuildscript {\n    ext.kotlin_version = \"1.5.10\"\n    repositories {\n        google()\n        mavenCentral()\n    }\n    dependencies {\n        classpath 'com.android.tools.build:gradle:7.1.0-alpha01'\n        classpath \"org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version\"\n    }\n}\n\nallprojects {\n    repositories {\n        google()\n        mavenCentral()\n    }\n\n}\n\ntask clean(type: Delete) {\n    delete rootProject.buildDir\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/build.gradle b/build.gradle
+--- a/build.gradle	
++++ b/build.gradle	
+@@ -6,7 +6,7 @@
+         mavenCentral()
+     }
+     dependencies {
+-        classpath 'com.android.tools.build:gradle:7.1.0-alpha01'
++        classpath 'com.android.tools.build:gradle:7.1.0-alpha02'
+         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+     }
+ }

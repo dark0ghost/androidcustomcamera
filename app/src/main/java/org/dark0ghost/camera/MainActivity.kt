@@ -27,6 +27,7 @@ import org.dark0ghost.camera.fn.setNewPref
 import org.dark0ghost.camera.implementation.*
 import org.dark0ghost.camera.permission.isAcceptCamera
 import org.dark0ghost.camera.permission.requestCameraPermission
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.lang.Thread.sleep
 import java.text.SimpleDateFormat
@@ -38,7 +39,7 @@ import java.util.concurrent.Executors
 open class MainActivity: AppCompatActivity() {
 
     private var imageCapture: ImageCapture? = null
-    private val imageStorage: ImageStorage = ImageStorage()
+    private val storage: ByteArrayOutputStream = ByteArrayOutputStream()
     private val data: ConstVar = ConstVar()
     private lateinit var outputDirectory: File
     private lateinit var cameraExecutor: ExecutorService
@@ -53,8 +54,8 @@ open class MainActivity: AppCompatActivity() {
      * make photo on device and save in file or ram
      */
     private fun takePhoto() {
+        val imageCaptures = imageCapture ?: return
         if (!GlobalSettings.ramMode) {
-            val imageCaptures = imageCapture ?: return
             val photoFile = File(
                 outputDirectory,
                 SimpleDateFormat(
@@ -79,10 +80,10 @@ open class MainActivity: AppCompatActivity() {
             return
         }
 
-        imageCapture?.takePicture(
+        imageCaptures.takePicture(
             ImageCapture
                 .OutputFileOptions
-                .Builder(imageStorage)
+                .Builder(storage)
                 .build(),
             ContextCompat
                 .getMainExecutor(this),
@@ -131,7 +132,7 @@ open class MainActivity: AppCompatActivity() {
                 .also {
                     it.setAnalyzer(cameraExecutor, LuminosityAnalyzer { luma ->
 
-                        Log.d(data.logTag, "Average luminosity: $luma")
+                      //  Log.d(data.logTag, "Average luminosity: $luma")
                     })
                 }
             val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
@@ -166,12 +167,12 @@ open class MainActivity: AppCompatActivity() {
                 cameraInfo,
                 startCamFunc
             ) {
-                val imageStorages = ImageStorage()
+                val storages = ByteArrayOutputStream()
                 var isPhotoSave = false
                 imageCapture?.takePicture(
                     ImageCapture
                         .OutputFileOptions
-                        .Builder(imageStorages)
+                        .Builder(storages)
                         .build(),
                     ContextCompat
                         .getMainExecutor(this@MainActivity),
@@ -184,7 +185,7 @@ open class MainActivity: AppCompatActivity() {
                 )
                 Log.e(data.logTag,"wait photo")
                 while (!isPhotoSave) sleep(10)
-                return@ThreadServer imageStorages.getDataAndClose()
+                return@ThreadServer storages.toString()
             }
             GlobalSettings.server = server
         }
@@ -216,7 +217,6 @@ open class MainActivity: AppCompatActivity() {
         if (!GlobalSettings.isServerStart) {
             server.close()
         }
-        imageStorage.close()
     }
 
     override fun onRequestPermissionsResult(
