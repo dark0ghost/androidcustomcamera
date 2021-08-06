@@ -14,7 +14,5 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Android Apk CI
-        uses: yuanjinsongquyi/action_android_build@v1
       - name: Universal APK Builder
         uses: skywall/universal-apk-builder@v1.0.1
