@@ -14,8 +14,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Release APK
-        uses: ShowMeThe/github_action_release@v0.01
       - name: Android Apk CI
         uses: yuanjinsongquyi/action_android_build@v1
       - name: Universal APK Builder
