@@ -23,4 +23,5 @@ jobs:
       run: ./gradlew build
     - name: Android Github Action
       uses: Vukan-Markovic/Github-Android-Action@1.2
-      
+    - name: Release APK Publisher
+      uses: Cafrecode/action-release-apk@1.0.2
