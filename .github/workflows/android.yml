@@ -23,5 +23,14 @@ jobs:
       run: ./gradlew build
     - name: Android Github Action
       uses: Vukan-Markovic/Github-Android-Action@1.2
+    - name: Build Debug APK
+      run: ./gradlew assembleDebug
     - name: Release APK Publisher
       uses: Cafrecode/action-release-apk@1.0.2
+    - name: Releasing using Hub
+      uses: ShaunLWM/action-release-debugapk@master
+      env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
+          APP_FOLDER: app
+          RELEASE_TITLE: New Build
+
