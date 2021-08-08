@@ -21,7 +21,6 @@ jobs:
       uses: Vukan-Markovic/Github-Android-Action@1.2
     - name: Build Debug APK
       run: ./gradlew assembleDebug
-    - name: Release APK Publisher
-      uses: Cafrecode/action-release-apk@1.0.2
+
 
 
