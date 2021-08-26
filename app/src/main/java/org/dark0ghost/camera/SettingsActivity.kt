@@ -9,8 +9,8 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import org.dark0ghost.camera.consts.ConstVar
 import org.dark0ghost.camera.fn.setNewPref
-import org.dark0ghost.camera.implementation.GlobalSettings
-import org.dark0ghost.camera.implementation.State
+import org.dark0ghost.camera.settings.GlobalSettings
+import org.dark0ghost.camera.enums.State
 
 
 class SettingsActivity: AppCompatActivity() {

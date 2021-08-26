@@ -2,7 +2,7 @@ package org.dark0ghost.camera.fn
 
 import android.content.SharedPreferences
 import org.dark0ghost.camera.consts.ConstVar
-import org.dark0ghost.camera.implementation.GlobalSettings
+import org.dark0ghost.camera.settings.GlobalSettings
 
 fun setGlobalSettingsFromContext(prefs: SharedPreferences,data: ConstVar = ConstVar() ) {
     GlobalSettings.startServer = prefs.getBoolean(data.startServerTag, false)

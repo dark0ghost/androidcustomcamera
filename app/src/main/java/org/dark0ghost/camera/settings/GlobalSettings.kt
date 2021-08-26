@@ -1,6 +1,7 @@
-package org.dark0ghost.camera.implementation
+package org.dark0ghost.camera.settings
 
 import android.util.Size
+import org.dark0ghost.camera.server.ThreadServer
 
 object GlobalSettings {
    var ramMode: Boolean = false
