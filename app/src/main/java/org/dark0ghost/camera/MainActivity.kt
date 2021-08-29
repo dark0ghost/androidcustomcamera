@@ -27,6 +27,8 @@ import org.dark0ghost.camera.fn.setNewPref
 import org.dark0ghost.camera.implementation.*
 import org.dark0ghost.camera.permission.isAcceptCamera
 import org.dark0ghost.camera.permission.requestCameraPermission
+import org.dark0ghost.camera.server.ThreadServer
+import org.dark0ghost.camera.settings.GlobalSettings
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.lang.Thread.sleep
@@ -94,6 +96,7 @@ open class MainActivity: AppCompatActivity() {
 
     }
 
+    @androidx.camera.camera2.interop.ExperimentalCamera2Interop
     private fun setFocusDistance(builder: ImageAnalysis.Builder, distance: Float) {
         val extender: Camera2Interop.Extender<*> = Camera2Interop.Extender(builder)
         extender.setCaptureRequestOption(
@@ -112,6 +115,7 @@ open class MainActivity: AppCompatActivity() {
         return if (mediaDir != null && mediaDir.exists()) mediaDir else filesDir
     }
 
+    @androidx.camera.camera2.interop.ExperimentalCamera2Interop
     private fun startCamera(): Unit {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
         cameraProviderFuture.addListener({
@@ -131,7 +135,7 @@ open class MainActivity: AppCompatActivity() {
             val imageAnalyzer = imageAnalyzerBuilder.build()
                 .also {
                     it.setAnalyzer(cameraExecutor, LuminosityAnalyzer { luma ->
-                        Log.d(data.logTag, "Average luminosity: $luma")
+                        // Log.d(data.logTag, "Average luminosity: $luma")
                     })
                 }
             val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
@@ -147,6 +151,7 @@ open class MainActivity: AppCompatActivity() {
         }, ContextCompat.getMainExecutor(this))
     }
 
+    @androidx.camera.camera2.interop.ExperimentalCamera2Interop
     override fun onCreate(savedInstanceState: Bundle?) {
         if (isAcceptCamera(this@MainActivity)) requestCameraPermission(this@MainActivity)
         super.onCreate(savedInstanceState)
@@ -182,8 +187,9 @@ open class MainActivity: AppCompatActivity() {
                         isPhotoSave = true
                     }
                 )
-                Log.e(data.logTag,"wait photo")
+                Log.e(data.logTag, "wait photo")
                 while (!isPhotoSave) sleep(10)
+                println("size ${storages.size()}")
                 return@ThreadServer storages.toString()
             }
             GlobalSettings.server = server
@@ -218,6 +224,7 @@ open class MainActivity: AppCompatActivity() {
         }
     }
 
+    @androidx.camera.camera2.interop.ExperimentalCamera2Interop
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,

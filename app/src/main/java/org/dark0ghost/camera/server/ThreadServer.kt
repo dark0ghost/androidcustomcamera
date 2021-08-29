@@ -1,10 +1,11 @@
-package org.dark0ghost.camera.implementation
+package org.dark0ghost.camera.server
 
 import android.util.Log
 import android.util.Size
 import androidx.camera.core.CameraInfo
 import org.dark0ghost.camera.fn.printTrace
 import org.dark0ghost.camera.interface_package.ServerThreadInterface
+import org.dark0ghost.camera.settings.GlobalSettings
 import java.io.*
 import java.net.ServerSocket
 import java.net.Socket
@@ -14,7 +15,7 @@ open class ThreadServer(private val trigger: List<String>, openPort: Int, privat
     private var serverSocket: ServerSocket = ServerSocket(openPort)
 
     private fun isCommand(message: String): Boolean {
-            return message.replace("\n", "") in trigger
+        return message.replace("\n", "") in trigger
     }
 
     private fun runTask(message: String, buffer: BufferedReader, bufferSender: PrintWriter): Unit {
@@ -77,21 +78,23 @@ open class ThreadServer(private val trigger: List<String>, openPort: Int, privat
                 }
                 Log.e(logTag, "connect")
                 Thread {
-                    val sock = clientSocket
-                    val inputStream = sock.getInputStream()
+                    val inputStream = clientSocket.getInputStream()
                     val inputData = BufferedReader(InputStreamReader(inputStream))
-                    while (!sock.isClosed) {
+                    while (!clientSocket.isClosed) {
 
                         Log.e(logTag, "start handler")
                         val bufferSender = PrintWriter(
                             BufferedWriter(
                                 OutputStreamWriter(
-                                    sock.getOutputStream()
+                                    clientSocket.getOutputStream()
                                 )
                             ),
                             true
                         )
-                        val mes = try{ inputData.readLine() ?: return@Thread} catch (e: java.net.SocketException) {
+
+                        val mes = try {
+                            inputData.readLine() ?: return@Thread
+                        } catch (e: java.net.SocketException) {
                             printTrace(e)
                             return@Thread
                         }
@@ -102,7 +105,6 @@ open class ThreadServer(private val trigger: List<String>, openPort: Int, privat
                             bufferSender.println("error: Unknown command $mes")
                             Log.e(logTag, "error: Unknown command $mes")
                         }
-
                     }
                 }.start()
 

@@ -1,9 +1,9 @@
 package org.dark0ghost.camera
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import org.dark0ghost.camera.implementation.GlobalSettings
-import org.dark0ghost.camera.implementation.GlobalSettings.server
-import org.dark0ghost.camera.implementation.ThreadServer
+import org.dark0ghost.camera.settings.GlobalSettings
+import org.dark0ghost.camera.settings.GlobalSettings.server
+import org.dark0ghost.camera.server.ThreadServer
 import org.junit.Test
 import org.junit.runner.RunWith
 
