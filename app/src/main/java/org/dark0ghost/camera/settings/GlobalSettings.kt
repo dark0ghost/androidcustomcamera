@@ -22,6 +22,8 @@ object GlobalSettings {
 
    var isPortBind: Boolean = false
 
+   var debugSavePhotoMode: Boolean = false
+
    var sizePhoto: Size = Size(600, 800)
 
    var isManualFocus: Boolean = false

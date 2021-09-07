@@ -5,6 +5,7 @@
     <string-array name="ru_text_settings">
         <item>сервер</item>
         <item>дальномер</item>
+        <item>режим отладки передачи фото</item>
     </string-array>
 </resources>
 

@@ -11,13 +11,14 @@ import org.dark0ghost.camera.consts.ConstVar
 import org.dark0ghost.camera.fn.setNewPref
 import org.dark0ghost.camera.settings.GlobalSettings
 import org.dark0ghost.camera.enums.State
+import org.dark0ghost.camera.fn.printTrace
 
 
 class SettingsActivity: AppCompatActivity() {
 
     private lateinit var changeViewButton: ImageButton
 
-    private lateinit var  listView: ListView
+    private lateinit var listView: ListView
 
     private lateinit var prefs: SharedPreferences
 
@@ -26,41 +27,51 @@ class SettingsActivity: AppCompatActivity() {
     private val data = ConstVar()
 
     private fun getStat(stat: Boolean): String {
-        if(stat) return "включен "
+        if (stat) return "включен "
         return "выключен "
 
     }
-    private fun setListVew(){
+
+    private fun setListVew() {
         val settingsItem: Array<String> = resources.getStringArray(R.array.ru_text_settings)
         val arrayItem: MutableList<String> = mutableListOf()
-        if (GlobalSettings.isServerStart){
-            arrayItem.add(("включен " + settingsItem[0]))
-        }else{
-            arrayItem.add(("выключен " + settingsItem[0]))
+        if (GlobalSettings.isServerStart) {
+            arrayItem.add(("включен ${settingsItem[0]}"))
+        } else {
+            arrayItem.add(("выключен ${settingsItem[0]}"))
         }
-        if (GlobalSettings.isRangeFinderStart){
-            arrayItem.add(("включен " + settingsItem[1]))
-        }else{
-            arrayItem.add(("выключен " + settingsItem[1]))
+        if (GlobalSettings.isRangeFinderStart) {
+            arrayItem.add(("включен ${settingsItem[1]}"))
+        } else {
+            arrayItem.add(("выключен ${settingsItem[1]}"))
+        }
+        if (GlobalSettings.debugSavePhotoMode) {
+            arrayItem.add(("включен ${settingsItem[2]}"))
+        } else {
+            arrayItem.add(("выключен ${settingsItem[2]}"))
         }
         val adapter: ArrayAdapter<String> = ArrayAdapter(
-                this,
-                android.R.layout.simple_list_item_1,
-                arrayItem
+            this,
+            android.R.layout.simple_list_item_1,
+            arrayItem
         )
         listView.adapter = adapter
     }
 
-    private fun changeListView(textChange: String, changePosition: List<Int>,nextItem: List<String>): ListAdapter {
+    private fun changeListView(
+        textChange: String,
+        changePosition: List<Int>,
+        nextItem: List<String>
+    ): ListAdapter {
         val settingsItem: Array<String> = resources.getStringArray(R.array.ru_text_settings)
         val arrayItem: MutableList<String> = mutableListOf()
         for (i in changePosition)
-        arrayItem.add("$textChange ${settingsItem[i]}")
+            arrayItem.add("$textChange ${settingsItem[i]}")
         arrayItem.addAll(nextItem)
         return ArrayAdapter(
-                this,
-                android.R.layout.simple_list_item_1,
-                arrayItem
+            this,
+            android.R.layout.simple_list_item_1,
+            arrayItem
         )
     }
 
@@ -74,34 +85,52 @@ class SettingsActivity: AppCompatActivity() {
         setListVew()
         editText = findViewById(R.id.ip)
         editText.hint = GlobalSettings.ip
-        listView.setOnItemClickListener {
-            _, view, _, _ ->
+        listView.setOnItemClickListener { _, view, _, _ ->
             val tView: TextView = view as TextView
             val text = tView.text.toString()
-            println(text)
+            Log.d(data.logTag, text)
             if (text == "выключен сервер" && !GlobalSettings.isServerStart) {
-                GlobalSettings.server.start()
+                try {
+                    GlobalSettings.server.start()
+                }catch (e: IllegalThreadStateException){
+                    Log.e(data.logTag,"server is start: ${printTrace(e)}")
+                }
                 GlobalSettings.isServerStart = true
                 GlobalSettings.startServer = true
-                val nextItem: List<String> = listOf("${getStat(GlobalSettings.isRangeFinderStart)} дальномер")
-                listView.adapter = changeListView(State.ON.str, listOf(0),nextItem )
+                val nextItem: List<String> =
+                    listOf("${getStat(GlobalSettings.isRangeFinderStart)} дальномер","${getStat(GlobalSettings.debugSavePhotoMode)} режим отладки передачи фото")
+                listView.adapter = changeListView(State.ON.str, listOf(0), nextItem)
                 return@setOnItemClickListener
             }
-            if(text == "включен сервер" && GlobalSettings.isServerStart){
+            if (text == "включен сервер" && GlobalSettings.isServerStart) {
                 GlobalSettings.server.stopServer()
-                GlobalSettings.isServerStart = false
                 GlobalSettings.startServer = false
-                val nextItem: List<String> = listOf("${getStat(GlobalSettings.isRangeFinderStart)} дальномер")
-                listView.adapter = changeListView(State.OFF.str,listOf(0),nextItem)
+                val nextItem: List<String> =
+                    listOf("${getStat(GlobalSettings.isRangeFinderStart)} дальномер","${getStat(GlobalSettings.debugSavePhotoMode)} режим отладки передачи фото")
+                listView.adapter = changeListView(State.OFF.str, listOf(0), nextItem)
                 return@setOnItemClickListener
             }
-            if(text == "дальномер"){
+            if (text == "дальномер") {
 
+                return@setOnItemClickListener
+            }
+            if (text == "выключен режим отладки передачи фото") {
+                GlobalSettings.debugSavePhotoMode = true
+                val nextItem: List<String> =
+                    listOf("${getStat(GlobalSettings.isRangeFinderStart)} дальномер","${getStat(GlobalSettings.debugSavePhotoMode)} режим отладки передачи фото")
+                listView.adapter = changeListView(State.OFF.str, listOf(0), nextItem)
+                return@setOnItemClickListener
+            }
+            if (text == "включен  режим отладки передачи фото") {
+                GlobalSettings.debugSavePhotoMode = false
+                val nextItem: List<String> =
+                    listOf("${getStat(GlobalSettings.isRangeFinderStart)} дальномер","${getStat(GlobalSettings.debugSavePhotoMode)} режим отладки передачи фото")
+                listView.adapter = changeListView(State.OFF.str, listOf(0), nextItem)
                 return@setOnItemClickListener
             }
         }
 
-        changeViewButton.setOnClickListener{
+        changeViewButton.setOnClickListener {
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
         }
@@ -109,7 +138,7 @@ class SettingsActivity: AppCompatActivity() {
         editText.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_SEND) {
                 GlobalSettings.ip = editText.text.toString()
-                Log.d("editor",editText.text.toString())
+                Log.d("editor", editText.text.toString())
                 return@setOnEditorActionListener true
             }
             return@setOnEditorActionListener false
@@ -118,6 +147,7 @@ class SettingsActivity: AppCompatActivity() {
 
         supportActionBar?.hide()
     }
+
     override fun onPause() {
         super.onPause()
         setNewPref(prefs, data)
