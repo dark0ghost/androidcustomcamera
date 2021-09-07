@@ -14,6 +14,8 @@ open class ThreadServer(private val trigger: List<String>, openPort: Int, privat
 
     private var serverSocket: ServerSocket = ServerSocket(openPort)
 
+    private val listJob: MutableList<Thread> = mutableListOf()
+
     private fun isCommand(message: String): Boolean {
         return message.replace("\n", "") in trigger
     }
@@ -77,11 +79,10 @@ open class ThreadServer(private val trigger: List<String>, openPort: Int, privat
                     continue
                 }
                 Log.e(logTag, "connect")
-                Thread {
+                val job = Thread {
                     val inputStream = clientSocket.getInputStream()
                     val inputData = BufferedReader(InputStreamReader(inputStream))
-                    while (!clientSocket.isClosed) {
-
+                    while (!clientSocket.isClosed && !isInterrupted) {
                         Log.e(logTag, "start handler")
                         val bufferSender = PrintWriter(
                             BufferedWriter(
@@ -106,8 +107,10 @@ open class ThreadServer(private val trigger: List<String>, openPort: Int, privat
                             Log.e(logTag, "error: Unknown command $mes")
                         }
                     }
-                }.start()
-
+                    Log.e(logTag, "thread stop: ${clientSocket.inetAddress}")
+                }
+                listJob.add(job)
+                job.start()
             } catch (e: Exception) {
                 printTrace(e)
             }
@@ -126,6 +129,7 @@ open class ThreadServer(private val trigger: List<String>, openPort: Int, privat
     override fun stopServer() {
         interrupt()
         this.close()
+        GlobalSettings.isServerStart = false
     }
 
     override fun run() {
@@ -139,6 +143,9 @@ open class ThreadServer(private val trigger: List<String>, openPort: Int, privat
             serverSocket.close()
         GlobalSettings.isPortBind = false
         GlobalSettings.isServerStart = false
+        listJob.forEach{ job ->
+            job.interrupt()
+        }
         Log.e(logTag, "Server is end work")
     }
 

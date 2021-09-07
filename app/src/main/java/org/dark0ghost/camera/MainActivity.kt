@@ -93,7 +93,6 @@ open class MainActivity: AppCompatActivity() {
                 data.logTag
             )
         )
-
     }
 
     @androidx.camera.camera2.interop.ExperimentalCamera2Interop
@@ -190,6 +189,15 @@ open class MainActivity: AppCompatActivity() {
                 Log.e(data.logTag, "wait photo")
                 while (!isPhotoSave) sleep(10)
                 println("size ${storages.size()}")
+                if(GlobalSettings.debugSavePhotoMode){
+                    val photoFile = File(
+                        outputDirectory,
+                        SimpleDateFormat(
+                            data.fileNameFormat, Locale.US
+                        ).format(System.currentTimeMillis()) + ".jpg"
+                    )
+                    photoFile.writeBytes(storages.toByteArray())
+                }
                 return@ThreadServer storages.toString()
             }
             GlobalSettings.server = server

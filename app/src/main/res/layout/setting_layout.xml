@@ -22,7 +22,7 @@
         android:imeOptions="actionSend"
         app:layout_constraintTop_toBottomOf="@+id/change_view"
         tools:layout_editor_absoluteX="36dp"
-        />
+        android:autofillHints="0.0.0.0" />
 
     <ListView
         android:id="@+id/listView"
