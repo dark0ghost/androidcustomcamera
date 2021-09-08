@@ -22,7 +22,7 @@ object GlobalSettings {
 
    var isPortBind: Boolean = false
 
-   var debugSavePhotoMode: Boolean = false
+   var debugSavePhotoMode: Boolean = true
 
    var sizePhoto: Size = Size(600, 800)
 

@@ -10,7 +10,7 @@ import java.io.*
 import java.net.ServerSocket
 import java.net.Socket
 
-open class ThreadServer(private val trigger: List<String>, openPort: Int, private val logTag: String, private val cameraInfo: CameraInfo?, private val updateCamera: () -> Unit, private val callaBack: () -> String): Thread(), ServerThreadInterface {
+open class ThreadServer(private val trigger: List<String>, openPort: Int, private val logTag: String, private val cameraInfo: CameraInfo?, private val updateCamera: () -> Unit, private val callaBack: () -> Pair<String, Int>): Thread(), ServerThreadInterface {
 
     private var serverSocket: ServerSocket = ServerSocket(openPort)
 
@@ -26,9 +26,10 @@ open class ThreadServer(private val trigger: List<String>, openPort: Int, privat
             "send" -> {
                 Log.e(logTag, "wait callback")
                 val res = callaBack()
+                Log.i(logTag, "size data ${res.first.length}")
                 Log.e(logTag, "send data $res")
-                bufferSender.println(res.replace(",", " ").replace("[", " ").replace("]", " "))
-                bufferSender.println("end")
+                bufferSender.println(res.second)
+                bufferSender.println(res.first)
             }
             "set_focus" -> {
                 Log.e(logTag, "wait number focus")
@@ -148,5 +149,4 @@ open class ThreadServer(private val trigger: List<String>, openPort: Int, privat
         }
         Log.e(logTag, "Server is end work")
     }
-
 }
