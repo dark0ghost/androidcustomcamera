@@ -198,7 +198,7 @@ open class MainActivity: AppCompatActivity() {
                     )
                     photoFile.writeBytes(storages.toByteArray())
                 }
-                return@ThreadServer storages.toString()
+                return@ThreadServer Pair(storages.toString(), storages.size())
             }
             GlobalSettings.server = server
         }

@@ -93,7 +93,7 @@ class SettingsActivity: AppCompatActivity() {
                 try {
                     GlobalSettings.server.start()
                 }catch (e: IllegalThreadStateException){
-                    Log.e(data.logTag,"server is start: ${printTrace(e)}")
+                    Log.e(data.logTag,"server: ${GlobalSettings.server.id}")
                 }
                 GlobalSettings.isServerStart = true
                 GlobalSettings.startServer = true
@@ -104,6 +104,7 @@ class SettingsActivity: AppCompatActivity() {
             }
             if (text == "включен сервер" && GlobalSettings.isServerStart) {
                 GlobalSettings.server.stopServer()
+                GlobalSettings.server.close()
                 GlobalSettings.startServer = false
                 val nextItem: List<String> =
                     listOf("${getStat(GlobalSettings.isRangeFinderStart)} дальномер","${getStat(GlobalSettings.debugSavePhotoMode)} режим отладки передачи фото")
