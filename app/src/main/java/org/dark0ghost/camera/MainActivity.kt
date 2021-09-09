@@ -52,9 +52,6 @@ open class MainActivity: AppCompatActivity() {
     private lateinit var prefs: SharedPreferences
     private var cameraInfo: CameraInfo? = null
 
-    /**
-     * make photo on device and save in file or ram
-     */
     private fun takePhoto() {
         val imageCaptures = imageCapture ?: return
         if (!GlobalSettings.ramMode) {
@@ -162,7 +159,10 @@ open class MainActivity: AppCompatActivity() {
         supportActionBar?.hide()
         if (!isAcceptCamera(this@MainActivity)) startCamera()
         if (!GlobalSettings.isServerStart && !GlobalSettings.isPortBind) {
-            val startCamFunc: () -> Unit = { startCamera() }
+            val startCamFunc: () -> Unit = {
+                val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
+                startCamera()
+            }
             server = ThreadServer(
                 GlobalSettings.trigger,
                 GlobalSettings.port,
@@ -197,8 +197,9 @@ open class MainActivity: AppCompatActivity() {
                         ).format(System.currentTimeMillis()) + ".jpg"
                     )
                     photoFile.writeBytes(storages.toByteArray())
+                    Log.d(data.logTag, "file save ${photoFile.absoluteFile}")
                 }
-                return@ThreadServer Pair(storages.toString(), storages.size())
+                return@ThreadServer Pair(storages, storages.size())
             }
             GlobalSettings.server = server
         }

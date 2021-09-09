@@ -10,7 +10,7 @@ import java.io.*
 import java.net.ServerSocket
 import java.net.Socket
 
-open class ThreadServer(private val trigger: List<String>, openPort: Int, private val logTag: String, private val cameraInfo: CameraInfo?, private val updateCamera: () -> Unit, private val callaBack: () -> Pair<String, Int>): Thread(), ServerThreadInterface {
+open class ThreadServer(private val trigger: List<String>, openPort: Int, private val logTag: String, private val cameraInfo: CameraInfo?, private val updateCamera: () -> Unit, private val callaBack: () -> Pair<ByteArrayOutputStream, Int>): Thread(), ServerThreadInterface {
 
     private var serverSocket: ServerSocket = ServerSocket(openPort)
 
@@ -20,13 +20,13 @@ open class ThreadServer(private val trigger: List<String>, openPort: Int, privat
         return message.replace("\n", "") in trigger
     }
 
-    private fun runTask(message: String, buffer: BufferedReader, bufferSender: PrintWriter): Unit {
+    private fun runTask(message: String, buffer: BufferedReader, bufferSender: PrintWriter) {
         Log.e(logTag, "wait callback")
         when (message) {
             "send" -> {
                 Log.e(logTag, "wait callback")
                 val res = callaBack()
-                Log.i(logTag, "size data ${res.first.length}")
+                Log.i(logTag, "size data ${res.first.size()}")
                 Log.e(logTag, "send data $res")
                 bufferSender.println(res.second)
                 bufferSender.println(res.first)
