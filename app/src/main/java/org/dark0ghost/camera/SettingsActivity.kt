@@ -103,8 +103,7 @@ class SettingsActivity: AppCompatActivity() {
                 return@setOnItemClickListener
             }
             if (text == "включен сервер" && GlobalSettings.isServerStart) {
-                GlobalSettings.server.stopServer()
-                GlobalSettings.server.close()
+                GlobalSettings.server.stop = true
                 GlobalSettings.startServer = false
                 val nextItem: List<String> =
                     listOf("${getStat(GlobalSettings.isRangeFinderStart)} дальномер","${getStat(GlobalSettings.debugSavePhotoMode)} режим отладки передачи фото")

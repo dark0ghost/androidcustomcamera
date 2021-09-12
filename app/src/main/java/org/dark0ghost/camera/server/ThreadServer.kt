@@ -70,58 +70,63 @@ open class ThreadServer(private val trigger: List<String>, openPort: Int, privat
         GlobalSettings.isServerStart = true
         Log.e(logTag, "run")
         while (!isInterrupted && !serverSocket.isClosed) {
-            val clientSocket: Socket
-            try {
-                Log.e(logTag, "wait")
+                if (!stop) {
+                    val clientSocket: Socket
+                    try {
+                        Log.e(logTag, "wait")
 
-                try {
-                    clientSocket = serverSocket.accept()
-                } catch (e: java.net.SocketException) {
-                    continue
-                }
-                Log.e(logTag, "connect")
-                val job = Thread {
-                    val inputStream = clientSocket.getInputStream()
-                    val inputData = BufferedReader(InputStreamReader(inputStream))
-                    while (!clientSocket.isClosed && !isInterrupted) {
-                        Log.e(logTag, "start handler")
-                        val bufferSender = PrintWriter(
-                            BufferedWriter(
-                                OutputStreamWriter(
-                                    clientSocket.getOutputStream()
-                                )
-                            ),
-                            true
-                        )
-
-                        val mes = try {
-                            inputData.readLine() ?: return@Thread
+                        try {
+                            clientSocket = serverSocket.accept()
                         } catch (e: java.net.SocketException) {
-                            printTrace(e)
-                            return@Thread
+                            continue
                         }
-                        Log.e(logTag, "check")
-                        if (isCommand(mes)) {
-                            runTask(mes, inputData, bufferSender)
-                        } else {
-                            bufferSender.println("error: Unknown command $mes")
-                            Log.e(logTag, "error: Unknown command $mes")
+                        Log.e(logTag, "connect")
+                        val job = Thread {
+                            val inputStream = clientSocket.getInputStream()
+                            val inputData = BufferedReader(InputStreamReader(inputStream))
+                            while (!clientSocket.isClosed && !isInterrupted) {
+                                Log.e(logTag, "start handler")
+                                val bufferSender = PrintWriter(
+                                    BufferedWriter(
+                                        OutputStreamWriter(
+                                            clientSocket.getOutputStream()
+                                        )
+                                    ),
+                                    true
+                                )
+
+                                val mes = try {
+                                    inputData.readLine() ?: return@Thread
+                                } catch (e: java.net.SocketException) {
+                                    printTrace(e)
+                                    return@Thread
+                                }
+                                Log.e(logTag, "check")
+                                if (isCommand(mes)) {
+                                    runTask(mes, inputData, bufferSender)
+                                } else {
+                                    bufferSender.println("error: Unknown command $mes")
+                                    Log.e(logTag, "error: Unknown command $mes")
+                                }
+                            }
+                            Log.e(logTag, "thread stop: ${clientSocket.inetAddress}")
                         }
+                        listJob.add(job)
+                        job.start()
+                    } catch (e: Exception) {
+                        printTrace(e)
                     }
-                    Log.e(logTag, "thread stop: ${clientSocket.inetAddress}")
+                }else{
+                    Log.e(logTag, "server wait start")
                 }
-                listJob.add(job)
-                job.start()
-            } catch (e: Exception) {
-                printTrace(e)
-            }
         }
-        Log.e(logTag, "stop func")
     }
 
     init {
         GlobalSettings.isPortBind = true
     }
+
+    var stop: Boolean = false
 
     override val socket
         get() = serverSocket
