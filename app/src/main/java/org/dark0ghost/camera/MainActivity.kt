@@ -131,7 +131,7 @@ open class MainActivity: AppCompatActivity() {
             val imageAnalyzer = imageAnalyzerBuilder.build()
                 .also {
                     it.setAnalyzer(cameraExecutor, LuminosityAnalyzer { luma ->
-                        // Log.d(data.logTag, "Average luminosity: $luma")
+                        Log.d(data.logTag, "Average luminosity: $luma")
                     })
                 }
             val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
@@ -160,7 +160,6 @@ open class MainActivity: AppCompatActivity() {
         if (!isAcceptCamera(this@MainActivity)) startCamera()
         if (!GlobalSettings.isServerStart && !GlobalSettings.isPortBind) {
             val startCamFunc: () -> Unit = {
-                val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
                 startCamera()
             }
             server = ThreadServer(
@@ -186,9 +185,9 @@ open class MainActivity: AppCompatActivity() {
                         isPhotoSave = true
                     }
                 )
-                Log.e(data.logTag, "wait photo")
+                Log.d(data.logTag, "wait photo")
                 while (!isPhotoSave) sleep(10)
-                println("size ${storages.size()}")
+                Log.d(data.logTag,"size ${storages.size()}")
                 if(GlobalSettings.debugSavePhotoMode){
                     val photoFile = File(
                         outputDirectory,
