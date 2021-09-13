@@ -52,9 +52,6 @@ open class MainActivity: AppCompatActivity() {
     private lateinit var prefs: SharedPreferences
     private var cameraInfo: CameraInfo? = null
 
-    /**
-     * make photo on device and save in file or ram
-     */
     private fun takePhoto() {
         val imageCaptures = imageCapture ?: return
         if (!GlobalSettings.ramMode) {
@@ -93,7 +90,6 @@ open class MainActivity: AppCompatActivity() {
                 data.logTag
             )
         )
-
     }
 
     @androidx.camera.camera2.interop.ExperimentalCamera2Interop
@@ -135,7 +131,7 @@ open class MainActivity: AppCompatActivity() {
             val imageAnalyzer = imageAnalyzerBuilder.build()
                 .also {
                     it.setAnalyzer(cameraExecutor, LuminosityAnalyzer { luma ->
-                        // Log.d(data.logTag, "Average luminosity: $luma")
+                        Log.d(data.logTag, "Average luminosity: $luma")
                     })
                 }
             val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
@@ -163,7 +159,9 @@ open class MainActivity: AppCompatActivity() {
         supportActionBar?.hide()
         if (!isAcceptCamera(this@MainActivity)) startCamera()
         if (!GlobalSettings.isServerStart && !GlobalSettings.isPortBind) {
-            val startCamFunc: () -> Unit = { startCamera() }
+            val startCamFunc: () -> Unit = {
+                startCamera()
+            }
             server = ThreadServer(
                 GlobalSettings.trigger,
                 GlobalSettings.port,
@@ -187,10 +185,20 @@ open class MainActivity: AppCompatActivity() {
                         isPhotoSave = true
                     }
                 )
-                Log.e(data.logTag, "wait photo")
+                Log.d(data.logTag, "wait photo")
                 while (!isPhotoSave) sleep(10)
-                println("size ${storages.size()}")
-                return@ThreadServer storages.toString()
+                Log.d(data.logTag,"size ${storages.size()}")
+                if(GlobalSettings.debugSavePhotoMode){
+                    val photoFile = File(
+                        outputDirectory,
+                        SimpleDateFormat(
+                            data.fileNameFormat, Locale.US
+                        ).format(System.currentTimeMillis()) + ".jpg"
+                    )
+                    photoFile.writeBytes(storages.toByteArray())
+                    Log.d(data.logTag, "file save ${photoFile.absoluteFile}")
+                }
+                return@ThreadServer Pair(storages, storages.size())
             }
             GlobalSettings.server = server
         }
