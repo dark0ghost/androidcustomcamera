@@ -112,10 +112,11 @@ open class MainActivity: AppCompatActivity() {
     }
 
     @androidx.camera.camera2.interop.ExperimentalCamera2Interop
-    private fun startCamera(): Unit {
+    private fun startCamera() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
         cameraProviderFuture.addListener({
             val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
+            cameraProvider.unbindAll()
             val preview = Preview.Builder()
                 .build()
                 .also {
@@ -136,7 +137,6 @@ open class MainActivity: AppCompatActivity() {
                 }
             val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
             try {
-                cameraProvider.unbindAll()
                 val camera = cameraProvider.bindToLifecycle(
                     this, cameraSelector, preview, imageCapture, imageAnalyzer
                 )
