@@ -199,7 +199,7 @@ open class MainActivity: AppCompatActivity() {
                     photoFile.writeBytes(storages.toByteArray())
                     Log.d(data.logTag, "file save ${photoFile.absoluteFile}")
                 }
-                return@ThreadServer Pair(storages, storages.size())
+                return@ThreadServer storages
             }
             GlobalSettings.server = server
         }
