@@ -44,6 +44,7 @@ open class ThreadServer(private val trigger: List<String>, openPort: Int, privat
                     bufferSender.println("error: $mes is not float")
                 }
                 updateCamera()
+                Log.e(logTag, "camera update")
             }
             "set_size_photo" -> {
                 Log.e(logTag, "wait size photo")
