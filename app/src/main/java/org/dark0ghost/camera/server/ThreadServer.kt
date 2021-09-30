@@ -20,7 +20,7 @@ open class ThreadServer(private val trigger: List<String>, openPort: Int, privat
         return message.replace("\n", "") in trigger
     }
 
-    private fun runTask(message: String, buffer: BufferedReader, bufferSender: PrintWriter) {
+    private fun runTask(message: String, buffer: BufferedReader, bufferSender: PrintWriter, outputStream: OutputStream) {
         Log.e(logTag, "wait callback")
         when (message) {
             "send" -> {
@@ -29,7 +29,7 @@ open class ThreadServer(private val trigger: List<String>, openPort: Int, privat
                 Log.i(logTag, "size data ${res.size()}")
                 Log.e(logTag, "send data $res")
                 bufferSender.println(res.size())
-                bufferSender.println(res)
+                outputStream.write(res.toByteArray())
             }
             "set_focus" -> {
                 Log.e(logTag, "wait number focus")
@@ -104,7 +104,7 @@ open class ThreadServer(private val trigger: List<String>, openPort: Int, privat
                                 }
                                 Log.e(logTag, "check")
                                 if (isCommand(mes)) {
-                                    runTask(mes, inputData, bufferSender)
+                                    runTask(mes, inputData, bufferSender, clientSocket.getOutputStream())
                                 } else {
                                     bufferSender.println("error: Unknown command $mes")
                                     Log.e(logTag, "error: Unknown command $mes")

@@ -189,7 +189,7 @@ open class MainActivity: AppCompatActivity() {
                 Log.d(data.logTag, "wait photo")
                 while (!isPhotoSave) sleep(10)
                 Log.d(data.logTag,"size ${storages.size()}")
-                if(GlobalSettings.debugSavePhotoMode){
+                if(GlobalSettings.debugSavePhotoMode) {
                     val photoFile = File(
                         outputDirectory,
                         SimpleDateFormat(
@@ -199,6 +199,7 @@ open class MainActivity: AppCompatActivity() {
                     photoFile.writeBytes(storages.toByteArray())
                     Log.d(data.logTag, "file save ${photoFile.absoluteFile}")
                 }
+
                 return@ThreadServer storages
             }
             GlobalSettings.server = server
