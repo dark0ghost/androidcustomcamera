@@ -8,10 +8,9 @@ import android.view.inputmethod.EditorInfo
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import org.dark0ghost.camera.consts.ConstVar
+import org.dark0ghost.camera.enums.State
 import org.dark0ghost.camera.fn.setNewPref
 import org.dark0ghost.camera.settings.GlobalSettings
-import org.dark0ghost.camera.enums.State
-import org.dark0ghost.camera.fn.printTrace
 
 
 class SettingsActivity: AppCompatActivity() {
@@ -103,8 +102,7 @@ class SettingsActivity: AppCompatActivity() {
                 return@setOnItemClickListener
             }
             if (text == "включен сервер" && GlobalSettings.isServerStart) {
-                GlobalSettings.server.stopServer()
-                GlobalSettings.server.close()
+                GlobalSettings.server.stop = true
                 GlobalSettings.startServer = false
                 val nextItem: List<String> =
                     listOf("${getStat(GlobalSettings.isRangeFinderStart)} дальномер","${getStat(GlobalSettings.debugSavePhotoMode)} режим отладки передачи фото")
@@ -144,7 +142,6 @@ class SettingsActivity: AppCompatActivity() {
             }
             return@setOnEditorActionListener false
         }
-
 
         supportActionBar?.hide()
     }

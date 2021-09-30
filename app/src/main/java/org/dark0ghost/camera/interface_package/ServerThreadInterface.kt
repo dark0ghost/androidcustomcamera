@@ -5,6 +5,6 @@ import java.net.ServerSocket
 interface ServerThreadInterface {
     val socket: ServerSocket
 
-    fun stopServer(): Unit
-    fun close(): Unit
+    fun stopServer()
+    fun close()
 }
