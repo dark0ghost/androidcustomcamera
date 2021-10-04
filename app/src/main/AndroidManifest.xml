@@ -13,7 +13,10 @@ android:versionName="1.0"
 <application
     android:icon="@drawable/camera_logo"
     android:theme="@style/Theme.AppCompat"
-    tools:targetApi="s">
+    tools:targetApi="s"
+    android:dataExtractionRules="@xml/data_extraction_rules"
+    android:fullBackupContent="false"
+    >
     <activity android:name="org.dark0ghost.camera.MainActivity" android:label="@string/app_name"
         android:exported="true">
         <intent-filter>
