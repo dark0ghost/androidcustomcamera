@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-package="org.dark0ghost.camera"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="org.dark0ghost.camera"
 android:versionCode="1"
 android:versionName="1.0"
     android:usesCleartextTraffic="true"
@@ -12,19 +13,23 @@ android:versionName="1.0"
 <application
     android:icon="@drawable/camera_logo"
     android:theme="@style/Theme.AppCompat"
-    android:allowBackup="false">
-    <activity android:name="org.dark0ghost.camera.MainActivity" android:label="@string/app_name">
+    tools:targetApi="s"
+    android:dataExtractionRules="@xml/data_extraction_rules"
+    android:fullBackupContent="false"
+    >
+    <activity android:name="org.dark0ghost.camera.MainActivity" android:label="@string/app_name"
+        android:exported="true">
         <intent-filter>
             <action android:name="android.intent.action.MAIN" />
             <category android:name="android.intent.category.LAUNCHER" />
         </intent-filter>
     </activity>
-    <activity android:name="org.dark0ghost.camera.SettingsActivity" android:label="Settings">
+    <activity android:name="org.dark0ghost.camera.SettingsActivity" android:label="Settings"
+        android:exported="true">
         <intent-filter>
             <action android:name="android.intent.action.CALL" />
             <category android:name="android.intent.category.ALTERNATIVE" />
         </intent-filter>
     </activity>
 </application>
-
 </manifest>

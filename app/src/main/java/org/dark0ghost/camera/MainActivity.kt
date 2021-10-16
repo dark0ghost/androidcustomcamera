@@ -92,6 +92,15 @@ open class MainActivity: AppCompatActivity() {
         )
     }
 
+    private fun getOutputDirectory(): File {
+        val mediaDir = externalMediaDirs.firstOrNull()?.let {
+            File(it, "camera").apply {
+                mkdirs()
+            }
+        }
+        return if (mediaDir != null && mediaDir.exists()) mediaDir else filesDir
+    }
+
     @androidx.camera.camera2.interop.ExperimentalCamera2Interop
     private fun setFocusDistance(builder: ImageAnalysis.Builder, distance: Float) {
         val extender: Camera2Interop.Extender<*> = Camera2Interop.Extender(builder)
@@ -100,15 +109,6 @@ open class MainActivity: AppCompatActivity() {
             CameraMetadata.CONTROL_AF_MODE_OFF
         )
         extender.setCaptureRequestOption(CaptureRequest.LENS_FOCUS_DISTANCE, distance)
-    }
-
-    private fun getOutputDirectory(): File {
-        val mediaDir = externalMediaDirs.firstOrNull()?.let {
-            File(it, "camera").apply {
-                mkdirs()
-            }
-        }
-        return if (mediaDir != null && mediaDir.exists()) mediaDir else filesDir
     }
 
     @androidx.camera.camera2.interop.ExperimentalCamera2Interop
@@ -132,7 +132,7 @@ open class MainActivity: AppCompatActivity() {
             val imageAnalyzer = imageAnalyzerBuilder.build()
                 .also {
                     it.setAnalyzer(cameraExecutor, LuminosityAnalyzer { luma ->
-                        Log.d(data.logTag, "Average luminosity: $luma")
+                       // Log.d(data.logTag, "Average luminosity: $luma")
                     })
                 }
             val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
@@ -154,6 +154,7 @@ open class MainActivity: AppCompatActivity() {
         val policy = ThreadPolicy.Builder().permitAll().build()
         StrictMode.setThreadPolicy(policy)
         setContentView(R.layout.activity_main)
+        cameraExecutor = Executors.newSingleThreadExecutor()
         prefs = getSharedPreferences("settings", Context.MODE_PRIVATE)
         setGlobalSettingsFromContext(prefs, data)
         supportActionBar?.hide()
@@ -188,7 +189,7 @@ open class MainActivity: AppCompatActivity() {
                 Log.d(data.logTag, "wait photo")
                 while (!isPhotoSave) sleep(10)
                 Log.d(data.logTag,"size ${storages.size()}")
-                if(GlobalSettings.debugSavePhotoMode){
+                if(GlobalSettings.debugSavePhotoMode) {
                     val photoFile = File(
                         outputDirectory,
                         SimpleDateFormat(
@@ -198,7 +199,8 @@ open class MainActivity: AppCompatActivity() {
                     photoFile.writeBytes(storages.toByteArray())
                     Log.d(data.logTag, "file save ${photoFile.absoluteFile}")
                 }
-                return@ThreadServer Pair(storages, storages.size())
+
+                return@ThreadServer storages
             }
             GlobalSettings.server = server
         }
@@ -219,7 +221,6 @@ open class MainActivity: AppCompatActivity() {
             startActivity(intent)
         }
         outputDirectory = getOutputDirectory()
-        cameraExecutor = Executors.newSingleThreadExecutor()
         Log.d(data.logTag, GlobalSettings.ipServer)
     }
 

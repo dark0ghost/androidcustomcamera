@@ -24,7 +24,7 @@ object GlobalSettings {
 
    var debugSavePhotoMode: Boolean = true
 
-   var sizePhoto: Size = Size(600, 800)
+   var sizePhoto: Size = Size(720, 960)
 
    var isManualFocus: Boolean = false
 
