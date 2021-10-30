@@ -6,12 +6,13 @@ import org.dark0ghost.camera.settings.GlobalSettings.server
 import org.dark0ghost.camera.server.ThreadServer
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.io.ByteArrayOutputStream
 
 @RunWith(AndroidJUnit4::class)
 class TestSocketServer() {
     init {
-        server = ThreadServer("state",9090,"test"){
-            "test"
+        server = ThreadServer(listOf("state"),9090,"test", null, {}){
+            ByteArrayOutputStream()
         }
     }
     @Test
