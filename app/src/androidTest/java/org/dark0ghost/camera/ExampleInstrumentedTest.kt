@@ -18,6 +18,7 @@ class ExampleInstrumentedTest {
     fun useAppContext() {
         // Context of the app under test.
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        assertEquals("org.openproject.camera", appContext.packageName)
+        println(appContext.packageName)
+        assertEquals("org.dark0ghost.camera", appContext.packageName)
     }
 }
