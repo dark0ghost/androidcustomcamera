@@ -6,7 +6,7 @@
 [![GitHub code size](https://img.shields.io/github/languages/code-size/dark0ghost/androidcustomcamera?style=flat)](https://github.com/dark0ghost/androidcustomcamera)
 [![Android CI](https://github.com/dark0ghost/androidcustomcamera/actions/workflows/android.yml/badge.svg)](https://github.com/dark0ghost/androidcustomcamera/actions/workflows/android.yml)
 ## about
-The application In this project a camera is implemented using the library **jetpack compose**implements a tcp server that can send photos by sending bits. The project is fully implemented at Kotlin
+The application The application In this project a camera is implemented using the library **jetpack compose**implements a tcp server that can send photos by sending bits. The project is fully implemented at Kotlin
 
 ## resource consumption 
 ram - 100-120 Mb<br>
